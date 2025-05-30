@@ -10,15 +10,17 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://ilcb.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'ilcb', // Usually your GitHub org/user name.
+  projectName: 'ilcb.github.io', // 仓库名
+  deploymentBranch: 'main', // 部署分支
+  trailingSlash: false, // 明确关闭结尾斜杠
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -248,6 +250,19 @@ const config: Config = {
         'ruby',
         'regex'
       ]
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(txt|md)$/,
+          type: 'asset/source', // 替代 raw-loader
+          parser: {
+            dataUrlCondition: {
+              maxSize: 8 * 1024, // 超过 8KB 的文件自动转为 Buffer
+            },
+          },
+        },
+      ],
     },
   } satisfies Preset.ThemeConfig,
 };
