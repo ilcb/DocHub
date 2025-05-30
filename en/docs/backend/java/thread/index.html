@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-Backend/Java/我是一个线程" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.7.0">
+<title data-rh="true">我是一个线程 | DocHub</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://ilcb.github.io/en/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://ilcb.github.io/en/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://ilcb.github.io/en/docs/backend/java/thread"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="我是一个线程 | DocHub"><meta data-rh="true" name="description" content="我是一个线程"><meta data-rh="true" property="og:description" content="我是一个线程"><meta data-rh="true" name="keywords" content="Java"><link data-rh="true" rel="icon" href="/en/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://ilcb.github.io/en/docs/backend/java/thread"><link data-rh="true" rel="alternate" href="https://ilcb.github.io/docs/backend/java/thread" hreflang="zh"><link data-rh="true" rel="alternate" href="https://ilcb.github.io/en/docs/backend/java/thread" hreflang="en"><link data-rh="true" rel="alternate" href="https://ilcb.github.io/docs/backend/java/thread" hreflang="x-default"><link rel="alternate" type="application/rss+xml" href="/en/blog/rss.xml" title="DocHub RSS Feed">
+<link rel="alternate" type="application/atom+xml" href="/en/blog/atom.xml" title="DocHub Atom Feed"><link rel="stylesheet" href="/en/assets/css/styles.1724a0b2.css">
+<script src="/en/assets/js/runtime~main.9f6123ad.js" defer="defer"></script>
+<script src="/en/assets/js/main.425a4d08.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<script>!function(){function t(t){document.documentElement.setAttribute("data-theme",t)}var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();t(null!==e?e:"light")}(),function(){try{const n=new URLSearchParams(window.location.search).entries();for(var[t,e]of n)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/en/img/logo.svg"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="navbar navbar--fixed-top"><div class="navbar__inner"><div class="navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/en/"><div class="navbar__logo"><img src="/en/img/logo.svg" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/en/img/logo.svg" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">DocHub</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/en/docs/backend/java/io">后端</a><div class="navbar__item dropdown dropdown--hoverable"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link">Wiki</a><ul class="dropdown__menu"><li><a class="dropdown__link" href="/en/docs/backend/algorithm/sort">算法</a></li><li><a class="dropdown__link" href="/en/docs/backend/design-pattern/rules">设计模式</a></li><li><a class="dropdown__link" href="/en/docs/wiki/uml/class">UML</a></li></ul></div><div class="navbar__item dropdown dropdown--hoverable"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link">云原生</a><ul class="dropdown__menu"><li><a class="dropdown__link" href="/en/docs/cloud-native/docker/install">容器</a></li><li><a class="dropdown__link" href="/en/docs/cloud-native/harbor/install-harbor">镜像仓库</a></li><li><a class="dropdown__link" href="/en/docs/cloud-native/orchestration/install-k8s">容器编排</a></li></ul></div><a class="navbar__item navbar__link" href="/en/docs/Tools/消息队列/RabbitMQ原理/">工具</a></div><div class="navbar__items navbar__items--right"><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="Switch between dark and light mode (currently light mode)" aria-label="Switch between dark and light mode (currently light mode)" aria-live="polite" aria-pressed="false"><svg viewBox="0 0 24 24" width="24" height="24" class="lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" class="darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/en/docs/backend/java/io">Java</a></div><ul style="display:block;overflow:visible;height:auto" class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/en/docs/backend/java/io">Java IO</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/en/docs/backend/java/concurrent">Java 并发之锁</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/en/docs/backend/java/exception">Java 异常</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/en/docs/backend/java/thread-local">ThreadLocal</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/en/docs/backend/java/thread-pool">Java 线程池</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/en/docs/backend/java/iterator">Java 迭代器</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/en/docs/backend/java/thread">我是一个线程</a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/en/docs/backend/spring/aop-example">Spring</a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/en/docs/backend/database/mysql/transaction">数据库</a></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs" itemscope="" itemtype="https://schema.org/BreadcrumbList"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/en/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">Java</span><meta itemprop="position" content="1"></li><li itemscope="" itemprop="itemListElement" itemtype="https://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link" itemprop="name">我是一个线程</span><meta itemprop="position" content="2"></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>我是一个线程</h1></header><h2 class="anchor anchorWithStickyNavbar_LWe7" id="初生牛犊">初生牛犊<a href="#初生牛犊" class="hash-link" aria-label="Direct link to 初生牛犊" title="Direct link to 初生牛犊">​</a></h2>
+<p>我是一个线程，我一出生就被编了个号：0x3704，然后被领到一个昏暗的屋子里，在这里我发现了很多和我一模一样的同伴。
+我身边的同伴 0x6900 待的时间比较长，他带着沧桑的口气对我说：“我们线程的宿命就是处理包裹。把包裹处理完以后还得马上回到这里，否则可能永远回不来了。”
+我一脸懵懂，“包裹，什么包裹？”
+“不要着急，马上你就会明白了，我们这里是不养闲人的。”
+果然，没多久，屋子的门开了，一个面貌凶恶的家伙吼道：“0x3704,出来！”
+我一出来就被塞了一个沉甸甸的包裹，上面还附带着一个写满了操作步骤的纸。
+“快去，把这个包裹处理了。”
+“去哪儿处理？”
+“跟着指示走，先到就绪车间。”
+果然，地上有指示箭头，跟着它来到了一间明亮的大屋子，这里已经有不少线程了，大家都很紧张，好像时刻准备着往前冲。
+我刚一进来，就听见广播说：“0x3704，进入车间。”
+我赶紧往前走，身后有很多人议论。
+“他太幸运了，刚进入就绪状态就能运行。”
+“是不是有关系？”
+“不是，你看人家的优先级多高啊，唉！”
+前边就是车间，这里简直是太美了，怪不得老线程总是唠叨着说：“要是能一直待在这里就好了。”
+这里空间大，视野好，空气清新，鸟语花香，还有很多从来没见过的人，像服务员一样等着为我服务。
+他们也都有编号，更重要的是每个人还有个标签，上面写着：硬盘、数据库、内存、网卡……
+我现在理解不了，看看操作步骤吧。
+1.从包裹中取出参数。
+打开包裹，里边有个 HttpRequest 对象，可以取到 userName、password 两个参数。
+2.执行登录操作。
+奥，原来是有人要登录啊，我把 userName、password 交给数据库服务员，他拿着数据，慢腾腾地走了。
+他怎么这么慢？不过我是不是正好可以在车间里多待一会儿？反正也没法执行第三步。
+就在这时，车间里的广播响了：“0x3704，我是 CPU，记住你正在执行的步骤，然后马上带着包裹离开！”
+我慢腾腾地开始收拾。
+“快点，别的线程马上就要进来了。”
+离开这个车间，又来到一个大屋子，这里有很多线程在慢腾腾地喝茶，打牌。
+“哥们，你们没事干了？”
+“你新来的吧，你不知道我在等数据库服务员给我数据啊！据说他们比我们慢好几十万倍，在这里好好歇吧。”
+“啊？这么慢！我这里有人在登录系统，能等这么长时间吗？”
+“放心，你没听说过人间一天，CPU 一年吗？我们这里是用纳秒、毫秒计时的，人间等待一秒，相当于我们好几天呢，来得及。”
+干脆睡一会吧。不知道过了多久，大喇叭又开始广播了：“0x3704，你的数据来了，快去执行！”
+我转身就往 CPU 车间跑，发现这里的门只出不进！
+后面传来阵阵哄笑声：“果然是新人，不知道还得去就绪车间等。”
+于是赶紧到就绪车间，这次没有那么好运了，等了好久才被再次叫进 CPU 车间。
+在等待的时候，我听见有人小声议论：
+“听说了吗，最近有个线程被 kill 掉了。”
+“为啥啊？”
+“这家伙赖在 CPU 车间不走，把 CPU 利用率一直搞成 100%，后来就被 kill 掉了。”
+“Kill 掉以后弄哪儿去了？”
+“可能被垃圾回收了吧。”
+我心里打了个寒噤，赶紧接着处理，剩下的动作快多了，第二步登录成功。
+3.构建登录成功后的主页。
+这一步有点费时，因为有很多 HTML 需要处理，不知道代码谁写的，处理起来很烦人。
+我正在紧张的制作 HTML 呢，CPU 又开始叫了：
+“0x3704，我是 CPU，记住你正在执行的步骤，然后马上带着包裹离开！”
+“为啥啊？”
+“每个线程只能在 CPU 上运行一段时间，到了时间就得让别人用了，你去就绪车间待着，等着叫你吧。”
+就这样，我一直在“就绪——运行”这两个状态中不知道轮转了多少次，终于按照步骤清单把工作做完了。
+最后顺利地把包含 html 的包裹发了回去。至于登录以后干什么事儿，我就不管了。马上就要回到我那昏暗的房间了，真有点舍不得这里。不过相对于有些线程，我还是幸运的，他们运行完以后就被彻底地销毁了，而我还活着！
+回到了小黑屋，老线程 0x6900 问：
+“怎么样？第一天有什么感觉？”
+“我们的世界规则很复杂，首先你不知道什么时候会被挑中执行；第二，在执行的过程中随时可能被打断，让出 CPU 车间；第三，一旦出现硬盘、数据库这样耗时的操作，也得让出 CPU 去等待；第四，就是数据来了，你也不一定马上执行，还得等着 CPU 挑选。”
+“小伙子理解的不错啊。”
+“我不明白为什么很多线程执行完任务就死了，为什么咱们还活着？”
+“你还不知道？长生不老是我们的特权！我们这里有个正式的名称，叫作<strong>线程池</strong>！”</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="渐入佳境">渐入佳境<a href="#渐入佳境" class="hash-link" aria-label="Direct link to 渐入佳境" title="Direct link to 渐入佳境">​</a></h2>
+<p>平淡的日子就这么一天天地过去，作为一个线程，我每天的生活都是取包裹、处理包裹，然后回到我们昏暗的家：线程池。
+有一天我回来的时候，听到有个兄弟说，今天要好好休息下，明天就是最疯狂的一天。我看了一眼日历，明天是 11 月 11 号。
+果然，零点刚过，不知道那些人类怎么了，疯狂地投递包裹，为了应付蜂拥而至的海量包裹，线程池里没有一个人能闲下来，全部出去处理包裹，CPU 车间利用率超高，硬盘在嗡嗡转，网卡疯狂的闪，即便如此，还是处理不完，堆积如山。
+我们也没有办法，实在是太多太多了，这些包裹中大部分都是浏览页面，下订单，买、买、买。
+不知道过了多久，包裹山终于慢慢地消失了。终于能够喘口气，我想我永远都不会忘记这一天。
+通过这个事件，我明白了我所处的世界：这是一个电子商务的网站！
+我每天的工作就是处理用户的登录，浏览，购物车，下单，付款。
+我问线程池的元老 0x6900：“我们要工作到什么时候？”
+“要一直等到系统重启的那一刻。”0x6900 说。
+“那你经历过系统重启吗？”
+“怎么可能？系统重启就是我们的死亡时刻，也就是世界末日，一旦重启，整个线程池全部销毁，时间和空间全部消失，一切从头再来。”
+“那什么时候会重启？”
+“这就不好说了，好好享受眼前的生活吧……”
+其实生活还是丰富多彩的，我最喜欢的包裹是上传图片，由于网络慢，所以能在就绪车间、CPU 车间待很长很长时间，可以认识很多好玩的线程。
+比如说上次认识了 memecached 线程，他对我说在他的帮助下缓存了很多的用户数据，还是分布式的！很多机器上都有！
+我问他：“怪不得后来的登录操作快了那么多，原来是不再从数据库取数据了你那里就有啊，哎对了你是分布式的你去过别的机器没有？”
+他说：“怎么可能！我每次也只能通过网络往那个机器发送一个 GET、PUT 命令才存取数据而已，别的一概不知。”
+再比如说上次在等待的时候遇到了数据库连接的线程，我才知道他那里也是一个连接池，和我们的线程池几乎一模一样。
+他告诉我：“有些包裹太变态了，竟然查看一年的订单数据，简直把我累死了。”
+我说：“拉倒吧你，你那是纯数据，你把数据传给我以后，我还得组装成 HTML，工作量不知道比你大多少倍。”
+他建议我：“你一定要和 memecached 搞好关系，直接从他那儿拿数据，尽量少直接调用数据库，这样我们 JDBCconnection 也能活得轻松点。”
+我欣然接纳：“好啊好啊，关键是你得提前把数据搞到缓存啊，要不然我先问一遍缓存，没有数据，我这不还得找你吗？”
+生活就是这样，如果你自己不找点乐子，还有什么意思？</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="虎口脱险">虎口脱险<a href="#虎口脱险" class="hash-link" aria-label="Direct link to 虎口脱险" title="Direct link to 虎口脱险">​</a></h2>
+<p>前几天我遇到一个可怕的事情，差一点死在外边，回不了线程池了。其实这次遇险我应该能够预想得到才对，真是太大意了。
+那天我处理了一些从 http 发来的存款和取款的包裹，老线程 0x6900 特意嘱咐我：“处理这些包裹的时候一定要特别小心，你必须先获得一把锁，在对账户存款或取款的时候一定要把账户锁住，要不然别的线程就会在你等待的时候趁虚而入，搞破坏，我年轻那会儿很毛糙，就捅了篓子。”
+为了“恐吓”我，好心的 0x6900 还给了我两个表格：
+一个银行账号，账户 A，余额 1000 元
+一个存款的线程
+一个取款的线程
+1.<strong>没有加锁的情况</strong></p>
+<table><thead><tr><th>线程 1：存入 300 元</th><th>线程 2：取出 200 元</th></tr></thead><tbody><tr><td>获取当前余额：1000</td><td></td></tr><tr><td>计算最新余额：1000+300=1300</td><td></td></tr><tr><td>线程中断，等待下次被挑中执行</td><td>获取当前余额：1000</td></tr><tr><td></td><td>计算最新余额：1000-200=800</td></tr><tr><td></td><td>线程中断，等待下次被挑中执行</td></tr><tr><td>再次执行，更新余额：1300</td><td></td></tr><tr><td></td><td>再次执行，更新余额 800，存入的钱丢失了</td></tr><tr><td>2.<strong>加了锁的情况</strong></td><td></td></tr></tbody></table>
+<table><thead><tr><th>线程 1：存入 300 元</th><th>线程 2：取出 200 元</th></tr></thead><tbody><tr><td>获取账户 A 的锁：成功</td><td></td></tr><tr><td>获取余额：1000</td><td></td></tr><tr><td>计算最新余额：1000+300=1300</td><td></td></tr><tr><td>线程终端，等待下次被系统挑中执行</td><td></td></tr><tr><td></td><td>获取账户 A 的锁，失败，进入阻塞状态</td></tr><tr><td>被系统选中，再次执行，更新余额 1300</td><td></td></tr><tr><td>释放账户 A 的锁</td><td></td></tr><tr><td></td><td>获取账户 A 的锁，成功</td></tr><tr><td></td><td>获取余额：1300</td></tr><tr><td></td><td>计算最新余额：1300-200=1100</td></tr><tr><td></td><td>更新余额：1100</td></tr><tr><td></td><td>释放账户 A 的锁</td></tr><tr><td>我看得胆颤心惊，原来不加锁会带来这么严重的事故。从此以后看到存款、取款的包裹就倍加小心，还好没有出过事故。</td><td></td></tr><tr><td>今天我收到的一个包裹是转账，从某著名演员的账户给某著名导演的账户转钱，具体是谁我就不透漏了，数额可真是不小。</td><td></td></tr><tr><td>我按照老线程的吩咐，肯定要加锁啊，先对著名演员的账户加锁，再对著名导演的账户加锁。</td><td></td></tr><tr><td>可我万万没想到的是，还有一个线程，对，就是 0x7954,竟然同时在从这个导演的账户往这个演员的账户转账。</td><td></td></tr><tr><td>于是乎，就出现了这么个情况：</td><td></td></tr></tbody></table>
+<table><thead><tr><th>线程 0x3704:著名演员-&gt;著名导演</th><th>线程 0x7954:著名导演-&gt;著名演员</th></tr></thead><tbody><tr><td>获取著名演员的锁：成功</td><td></td></tr><tr><td>线程中断，等待下次被系统挑中执行</td><td></td></tr><tr><td></td><td>获取著名导演的锁：成功</td></tr><tr><td></td><td>线程中断，等待下次被系统挑中执行</td></tr><tr><td>获取著名导演的锁，失败，继续等待</td><td></td></tr><tr><td></td><td>获取著名演员的锁：失败，继续等待</td></tr><tr><td>刚开始我还不知道什么情况，一直坐在等待车间傻等，可是等的时间太长了，长达几十秒！我可从来没有经历过这样的事件。</td><td></td></tr><tr><td>这时候我就看到了线程 0x7954,他悠闲地坐在那里喝咖啡，我和他聊了起来：</td><td></td></tr><tr><td>”哥们，我看你已经喝了 8 杯咖啡了，怎么还不去干活？”</td><td></td></tr><tr><td>”你不喝了 9 杯茶了吗？”0x7954 回敬道。</td><td></td></tr><tr><td>”我在等一个锁，不知道哪个孙子一直不释放！”</td><td></td></tr><tr><td>”我也在等锁啊，我要是知道哪个孙子不释放锁我非揍死他不可！”0x7954 毫不示弱。</td><td></td></tr><tr><td>我偷偷地看了一眼，这家伙怀里不就抱着我正等的某导演的锁吗？</td><td></td></tr><tr><td>很明显，0x7954 也发现了我正抱着他正在等待的锁。</td><td></td></tr><tr><td>很快我们两个就吵了起来，互不相让：</td><td></td></tr><tr><td>“把你的锁先给我，让我先做完！”</td><td></td></tr><tr><td>“不行，从来都是做完工作才释放锁，现在绝对不能给你！”</td><td></td></tr><tr><td>从争吵到打起来，就那么几秒钟的事儿。更重要的是，我们俩不仅仅持有这个著名导演和演员的锁，还有很多其他的锁，导致等待的线程越来越多，围观的人们把屋子都挤满了。最后事情真的闹大了，我从来没见过的终极大 boss“操作系统”也来了。大 Boss 毕竟见多识广，他看了一眼，哼了一声，很不屑地说：</td><td></td></tr><tr><td>“又出现死锁了。”</td><td></td></tr><tr><td>“你们俩要 Kill 掉一个，来吧，过来抽签。”</td><td></td></tr><tr><td>这一下子把我给吓尿了，这么严重啊！我战战兢兢地抽了签，打开一看，是个“活”字。唉，小命终于保住了。</td><td></td></tr><tr><td>可怜的 0x7954 被迫交出了所有的资源以后，很不幸地被 kill 掉，消失了。我拿到了导演的锁，可以开始干活了。大 Boss“操作系统”如一阵风似的消失了，身后只传来他的声音：</td><td></td></tr><tr><td>“记住，我们这里导演&gt;演员，无论任何情况都要先获得导演的锁。”</td><td></td></tr><tr><td>由于这里不仅仅只有导演和演员，还有很多其他人，大 Boss 留下了一个表格，里边是个算法，用来计算资源的大小，计算出来以后，永远按照从大到小的方式来获得锁：</td><td></td></tr><tr><td>假定有账户 A 和账户 B2 个资源，经过计算，发现账户 A 比账户 B 大，转账时获得锁的次序是：1.账户 A,2.账户 B</td><td></td></tr></tbody></table>
+<table><thead><tr><th>线程 1：账户 A 转到账户 B</th><th>线程 2：账户 B 转到账户 A</th></tr></thead><tbody><tr><td>获取账户 A 的锁：成功</td><td></td></tr><tr><td>线程中断，等待下次被系统挑中执行</td><td></td></tr><tr><td></td><td>获取账户 A 的锁：失败，继续等待</td></tr><tr><td>获取账户 B 的锁：成功</td><td></td></tr><tr><td>执行转账</td><td></td></tr><tr><td>释放 B 的锁</td><td></td></tr><tr><td>释放 A 的锁</td><td></td></tr><tr><td></td><td>获取账户 A 的锁：成功</td></tr><tr><td></td><td>获取账户 B 的锁：成功</td></tr><tr><td></td><td>执行转账</td></tr><tr><td></td><td>释放 B 的锁</td></tr><tr><td></td><td>释放 A 的锁</td></tr><tr><td>我回到线程池，大家都知道了我的历险，围着我问个不停。</td><td></td></tr><tr><td>凶神恶煞的线程调度员把大 Boss 的算法贴到了墙上。</td><td></td></tr><tr><td>每天早上，我们都得像无节操的房屋中介、美容美发店的服务员一样，站在门口，像被耍猴一样大声背诵：</td><td></td></tr><tr><td>”多个资源加锁要牢记，一定要按 Boss 的算法比大小，然后从最大的开始加锁。”</td><td></td></tr></tbody></table>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="江湖再见">江湖再见<a href="#江湖再见" class="hash-link" aria-label="Direct link to 江湖再见" title="Direct link to 江湖再见">​</a></h2>
+<p>又过了很多天，我和其他线程们发现了一个奇怪的事情：包裹的处理越来越简单，不管任何包裹，不管是登录、浏览、存钱……处理的步骤都是一样的,返回一个固定的 html 页面。
+有一次我偷偷地看了一眼，上面写着：“本系统将于今晚 00:00 至 4:00 进行维护升级，给您带来的不便我们深感抱歉！”
+我去告诉了老线程 0x6904,他叹了一口气说：
+“唉，我们的生命也到头了，看来马上就要重启系统，我们就要消失了，再见吧兄弟。”
+系统重启的那一刻终于到来了。我看到屋子里的东西一个个的不见了，等待车间、就绪车间，甚至 CPU 车间都慢慢地消失了。我身边的线程兄弟也越来越少，最后只剩我自己了。
+我在空旷的原野上大喊：“还有人吗？”
+无人应答。
+我们这一代线程池完成了使命……
+不过下一代线程池即将重生！</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-tags-row"><div class="col"><b>Tags:</b><ul class="tags_jXut padding--none margin-left--sm"><li class="tag_QGVx"><a class="tag_zVej tagRegular_sFm0" href="/en/docs/tags/java">Java</a></li></ul></div></div><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col"><a href="https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/docs/Backend/Java/我是一个线程.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="pagination-nav docusaurus-mt-lg" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/en/docs/backend/java/iterator"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Java 迭代器</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/en/docs/backend/spring/aop-example"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Spring AOP 实例</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#初生牛犊" class="table-of-contents__link toc-highlight">初生牛犊</a></li><li><a href="#渐入佳境" class="table-of-contents__link toc-highlight">渐入佳境</a></li><li><a href="#虎口脱险" class="table-of-contents__link toc-highlight">虎口脱险</a></li><li><a href="#江湖再见" class="table-of-contents__link toc-highlight">江湖再见</a></li></ul></div></div></div></div></main></div></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/en/docs/Tutorial/React Native跨端开发环境的副本/React Native跨端开发环境">Tutorial</a></li></ul></div><div class="col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://stackoverflow.com/questions/tagged/docusaurus" target="_blank" rel="noopener noreferrer" class="footer__link-item">Stack Overflow<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div><div class="col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/ilcb" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 DocHub, Inc. Built with Docusaurus.</div></div></div></footer></div>
+</body>
+</html>
