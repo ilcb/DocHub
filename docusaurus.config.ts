@@ -261,18 +261,21 @@ const config: Config = {
       // Optional: see doc section below
       contextualSearch: true,
     },
-    module: {
-      rules: [
-        {
-          test: /\.(txt|md)$/,
-          type: 'asset/source', // 替代 raw-loader
-          parser: {
-            dataUrlCondition: {
-              maxSize: 8 * 1024, // 超过 8KB 的文件自动转为 Buffer
+    // 将大文件转为 Buffer
+    webpack: {
+      module: {
+        rules: [
+          {
+            test: /\.(txt|json)$/,
+            type: 'asset/source', // 使用 Webpack 5 的 Asset Modules
+            parser: {
+              dataUrlCondition: {
+                maxSize: 8 * 1024, // 超过 8KB 自动转为 Buffer
+              },
             },
           },
-        },
-      ],
+        ],
+      },
     },
   } satisfies Preset.ThemeConfig,
 };
