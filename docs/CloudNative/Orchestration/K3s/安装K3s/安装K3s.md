@@ -3,7 +3,7 @@ title: 安装 K3s
 description: "安装 K3s"
 slug: "/cloud-native/orchestration/install-k3s"
 hide_table_of_contents: false
-keywords: ["K3s", "Kuboard"]
+keywords: ["K3s"]
 tags: ["K3s", "CloudNative"]
 date: 2017-08-01
 categories: ["Orchestration"]

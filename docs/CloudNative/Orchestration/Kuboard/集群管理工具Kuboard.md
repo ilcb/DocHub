@@ -15,7 +15,7 @@ categories: ["Orchestration"]
 
 1.安装并使用 kuboard 管理集群:
 
-   之前我们已经安装部署了 K3s 集群 [参照 [安装 K3s](docs/Infrastructure/容器编排/K3s/安装K3s/安装K3s.md)] ，现在我们目标是通过 Kuboard 管理该集群;
+   之前我们已经安装部署了 K3s 集群 [参照 [安装 K3s](docs/CloudNative/Orchestration/K3s/安装K3s/安装K3s.md)] ，现在我们目标是通过 Kuboard 管理该集群;
 
 2.从 harbor 下载镜像并运行
 
@@ -99,7 +99,7 @@ docker run -d \
 
 #### 4.2.1 配置 Harbor 支持 https 访问
 
-请参照  [Harbor 安全访问](docs/Infrastructure/环境/Harbor镜像仓库/Harbor安全访问/Harbor安全访问.md)
+请参照  [Harbor 安全访问](docs/CloudNative/Harbor/Harbor安全访问/Harbor安全访问.md)
 
 #### 4.2.1 containerd 接入 harbor 仓库
 
