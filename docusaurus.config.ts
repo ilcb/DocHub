@@ -40,7 +40,6 @@ const config: Config = {
       },
     },
   },
-
   presets: [
     [
       'classic',
@@ -73,7 +72,6 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
-
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
@@ -250,6 +248,18 @@ const config: Config = {
         'ruby',
         'regex'
       ]
+    },
+    algolia: {
+      // The application ID provided by Algolia
+      appId: 'KH2JHIT03F',
+
+      // Public API key: it is safe to commit it
+      apiKey: '54562e49efc08e4f3da778465e2e1129',
+
+      indexName: 'doc_index',
+
+      // Optional: see doc section below
+      contextualSearch: true,
     },
     module: {
       rules: [
