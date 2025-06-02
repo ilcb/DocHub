@@ -261,6 +261,12 @@ const config: Config = {
       // Optional: see doc section below
       contextualSearch: true,
     },
+    metadata: [
+      {
+        name: 'algolia-site-verification',
+        content: '7AC2C149ACF91D98',
+      },
+    ],
     // 将大文件转为 Buffer
     webpack: {
       module: {
