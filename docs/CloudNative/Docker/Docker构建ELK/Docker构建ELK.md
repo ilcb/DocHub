@@ -372,7 +372,7 @@ vi /data/docker/elk/logstash/config/pipelines.yml
 
 配置内容
 
-```plain
+```bash
 pipeline.id: main
 path.config: /usr/share/logstash/pipeline/*.conf
 ```

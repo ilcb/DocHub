@@ -43,7 +43,7 @@ redis 的 data 文件位置 ： `/data/docker/redis/data`
 
 ## 3.启动容器
 
-```plain
+```bash
 docker run -itd \
            --name redis \
            --restart=always \
@@ -85,7 +85,7 @@ docker ps -a | grep redis
 
 ### 启动 Redis 客户端
 
-```plain
+```bash
 docker exec -it redis redis-cli
 select 1
 set key value

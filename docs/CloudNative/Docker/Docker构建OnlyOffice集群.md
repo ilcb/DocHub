@@ -35,8 +35,8 @@ categories: ["Docker"]
 
 ## 1.2 OnlyOffice 项目信息
 
-onlyofficeAPI文档：https://api.onlyoffice.com/editors/basic
-onlyoffice 项目地址：https://github.com/ONLYOFFICE/Docker-DocumentServer
+OnlyOfficeAPI 文档：https://api.onlyoffice.com/editors/basic
+OnlyOffice 项目地址：https://github.com/ONLYOFFICE/Docker-DocumentServer
 官方示例：https://api.onlyoffice.com/zh/editors/basic
 
 
@@ -74,7 +74,7 @@ vi /etc/docker/daemon.json
 
 **内容为**
 
-```plain
+```bash
 {
   "registry-mirrors": ["https://awkamezj.mirror.aliyuncs.com"]
 }
@@ -82,7 +82,7 @@ vi /etc/docker/daemon.json
 
 修改完成后重启 docker
 
-```plain
+```bash
 sudo systemctl daemon-reload
 
 sudo systemctl restart docker
@@ -94,7 +94,7 @@ nginx 在构建集群时需要用来做负载，也可以使用`HAProxy`来做�
 
 ### 2.2.1 docker 安装 nginx
 
-```plain
+```bash
 #1.查询镜像
 docker search nginx
 
@@ -108,7 +108,7 @@ docker pull nginx
 
 ### 2.2.3 启动容器
 
-```plain
+```bash
 docker run --name nginx -p 80:80 -d nginx
 ```
 
@@ -124,7 +124,7 @@ docker run --name nginx -p 80:80 -d nginx
 
 ### 2.2.5 创建挂载目录
 
-```plain
+```bash
 mkdir -p /data/nginx/{conf,conf.d,html,logs,cert}
 ```
 
@@ -132,7 +132,7 @@ mkdir -p /data/nginx/{conf,conf.d,html,logs,cert}
 
 将 nginx 配置文件 copy 到宿主机中
 
-```plain
+```bash
 docker cp nginx:/etc/nginx/nginx.conf /data/nginx/conf
 docker cp nginx:/etc/nginx/conf.d /data/nginx/
 docker cp nginx:/usr/share/nginx/html/ /data/nginx/html/
@@ -142,14 +142,14 @@ docker cp nginx:/etc/nginx/cert/ /data/nginx/cert/
 
 ### 2.2.7 停止并移除容器
 
-```plain
+```bash
 docker stop nginx
 docker rm nginx
 ```
 
 ### 2.2.8 启动容器
 
-```plain
+```bash
 docker run -d \
            --name nginx \
            --restart=always \
@@ -179,7 +179,7 @@ docker run -d \
 
 ## 3.2 docker 镜像安装
 
-```plain
+```bash
 #1.查找镜像
 docker search onlyoffice/documentserver
 
@@ -297,7 +297,7 @@ local.json 文件为 OnlyOffice/documentserver 的容器配置，来源于容器
 
 开启 WOPI 协议，需要修改 local.json，新增如下配置
 
-```plain
+```bash
 "wopi": {
     "enable": true
   },
@@ -645,7 +645,7 @@ vi office.conf
 
 文件内容
 
-```plain
+```bash
 upstream office {
   hash $remote_addr consistent;
   server 127.0.0.1:8091;
@@ -788,7 +788,7 @@ Web Office 编辑器需要一个前端页面来承载，传送门[主机页面](
 - mode 表示查看或者编辑模式，包括 show、edit。上图中 step3 通过该接口访问 Office Client 服务
 - WOPISrc：协议约定的一个 URL，需要 Server 提供，Browser 根据该信息通知 Client 可以对 Office 文档执行 WOPI 规定的文档操作
 
-#### 5.2.2.2 WOPI 服务器(Host):
+#### 5.2.2.2 WOPI 服务器(Host)
 
 实现了[WOPI Rest Api](https://api.onlyoffice.com/zh/editors/wopi/restapi)的后端应用，需要实现对文件的查看、下载、锁定等 api 接口。
 

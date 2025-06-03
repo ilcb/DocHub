@@ -55,7 +55,7 @@ docker cp zookeeper:/conf/zoo.cfg /data/docker/zookeeper/conf
 
 停止并删除 zookeeper 容器
 
-```plain
+```bash
 docker stop zookeeper && docker rm zookeeper
 ```
 

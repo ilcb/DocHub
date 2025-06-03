@@ -303,7 +303,7 @@ public class ValidationList<E> implements List<E> {
 
 比如，需要一次性保存多个`User`对象，`Controller`层的方法可以这么写：
 
-```plain
+```java
 @PostMapping("/saveList")
 public Result saveList(@RequestBody @Validated(UserDTO.Save.class) ValidationList<UserDTO> userList) {
     // 校验通过，才会执行业务逻辑处理

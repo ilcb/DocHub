@@ -472,7 +472,7 @@ docker run -d \
 
 目录结构:
 
-```plain
+```bash
 ├── .env
 ├── delete-container.sh
 ├── docker-compose.yml
@@ -638,7 +638,7 @@ rpm -ivh oracle-instantclient12.2-basic-12.2.0.1.0-1.x86_64.rpm
 
 ### 7.2.1 创建 tnsname
 
-```plain
+```bash
 mkdir /usr/lib/oracle/12.2/client64/network/admin -p
 cd /usr/lib/oracle/12.2/client64/network/admin
 touch tnsnames.ora
@@ -647,7 +647,7 @@ vi tnsnames.ora
 
 内容为
 
-```plain
+```bash
 {SID} =
    (DESCRIPTION =
        (ADDRESS = (PROTOCOL = TCP)(HOST = {ip})(PORT = 1521))
@@ -661,7 +661,7 @@ EOF
 
 ### 7.2.2 配置 oracle 客户端环境变量
 
-```plain
+```bash
 cd /etc/profile.d
 touch oracledb_exporter.sh
 vi oracledb_exporter.sh
@@ -762,7 +762,7 @@ sh ./start.sh
 
 截取部分内容
 
-```plain
+```bash
 go_threads 20
 # HELP oracledb_activity_execute_count Generic counter metric from v$sysstat view in Oracle.
 # TYPE oracledb_activity_execute_count gauge

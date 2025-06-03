@@ -5,7 +5,7 @@ date: 2018-12-01
 tags: 
     - AMQP
 categories: 
-    - 工具plainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplain
+    - 工具
 ---
 RabbitMQ 是一个由 erlang 开发的 AMQP（Advanced Message Queue ）的开源实现
 

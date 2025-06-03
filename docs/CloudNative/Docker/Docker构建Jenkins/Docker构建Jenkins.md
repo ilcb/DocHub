@@ -365,7 +365,7 @@ service mysql start
 
 ##### 查找临时密码
 
-```plain
+```bash
 cat  /var/log/mysql/mysqld.log
 ```
 
@@ -424,7 +424,7 @@ vi /opt/sonarqube-7.8/conf/sonar.properties
 `vim /etc/sysctl.conf`
 在尾部添加以下内容：
 
-```plain
+```bash
 vm.max_map_count=655360
 ```
 

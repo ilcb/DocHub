@@ -47,7 +47,7 @@ docker run --name nginx -p 80:80 -d nginx
 ### 4.2 将容器中的文件 copy 到宿主机中
 将 nginx 配置文件 copy 到宿主机中
 
-```plain
+```bash
 docker cp nginx:/etc/nginx/nginx.conf /data/docker/nginx/conf
 docker cp nginx:/etc/nginx/conf.d /data/docker/nginx/
 docker cp nginx:/usr/share/nginx/html/ /data/docker/nginx/html/
@@ -64,7 +64,7 @@ docker rm nginx
 
 ## 6.启动容器
 
-```plain
+```bash
 docker run -d \
            --name nginx \
            --restart=always \

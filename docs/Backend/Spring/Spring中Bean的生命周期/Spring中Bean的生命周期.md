@@ -197,7 +197,7 @@ public class MyBeanPostProcessor implements BeanPostProcessor {
 
 ### 4.5 测试入口
 
-```plain
+```java
 package com.example.bean.lifecycle;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -484,7 +484,7 @@ stop(Runnable callback)：停止生命周期组件，并在停止后执行提供
 
 `SmartLifecycle` 的智能之处在于，它允许多个组件根据 getPhase() 方法返回的值自动排序，确保它们按照正确的顺序启动和停止。这对于需要依赖其他组件启动后再启动的场景非常有用。
 
-例如，在 Spring Boot 应用中，你可能会有一些组件需要在数据库连接建立之后才能启动，或者需要在某些服务注册到 Eureka 服务器之后才能启动。通过使用 `SmartLifecycle `，你可以确保这些组件在依赖条件满足后按正确的顺序启动。
+例如，在 Spring Boot 应用中，你可能会有一些组件需要在数据库连接建立之后才能启动，或者需要在某些服务注册到 Eureka 服务器之后才能启动。通过使用 `SmartLifecycle`，你可以确保这些组件在依赖条件满足后按正确的顺序启动。
 
 
 
@@ -511,11 +511,11 @@ stop(Runnable callback)：停止生命周期组件，并在停止后执行提供
 
 
 
-以下是一些具体的 `SmartLifecycle ` 接口的应用场景：
+以下是一些具体的 `SmartLifecycle` 接口的应用场景：
 
 1. 数据库连接池的管理： 
 
-   在应用程序启动时，可以利用 `SmartLifecycle ` 接口来初始化数据库连接池。在应用程序关闭时，可以利用 `SmartLifecycle` 接口来优雅地关闭数据库连接池，确保所有数据库连接都已释放。
+   在应用程序启动时，可以利用 `SmartLifecycle` 接口来初始化数据库连接池。在应用程序关闭时，可以利用 `SmartLifecycle` 接口来优雅地关闭数据库连接池，确保所有数据库连接都已释放。
 
 2. 缓存的初始化和销毁：
 

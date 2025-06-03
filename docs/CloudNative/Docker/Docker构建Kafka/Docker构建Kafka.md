@@ -102,7 +102,7 @@ I have no name!@439a150128f5:/opt/bitnami/kafka/bin$ ./kafka-console-producer.sh
 
 ### 消费者接受消息
 
-```plain
+```bash
 docker exec -it kafka bash
 I have no name!@439a150128f5:/$ cd /opt/bitnami/kafka/bin/
 I have no name!@439a150128f5:/opt/bitnami/kafka/bin$ ./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic first-topic --from-beginning
