@@ -251,12 +251,12 @@ const config: Config = {
     },
     algolia: {
       // The application ID provided by Algolia
-      appId: 'KH2JHIT03F',
+      appId: 'D6I4GUBDWN',
 
       // Public API key: it is safe to commit it
-      apiKey: '54562e49efc08e4f3da778465e2e1129',
+      apiKey: '906b39dd4a7c62b03f3c072c3524e561',
 
-      indexName: 'doc_index',
+      indexName: 'ilcbio',
 
       // Optional: see doc section below
       contextualSearch: true,
