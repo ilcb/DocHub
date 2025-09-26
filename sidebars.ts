@@ -123,6 +123,10 @@ const sidebars: SidebarsConfig = {
             ],
         },
     ],
+    systemStructureSidebar:[
+        'Wiki/SystemStructure/信息化/信息化',
+        'Wiki/SystemStructure/软件工程/软件工程',
+    ],
     umlSidebar:[
         'Wiki/UML/类图/类图',
         'Wiki/UML/用例图/用例图',
@@ -180,7 +184,41 @@ const sidebars: SidebarsConfig = {
     ],
     toolsSidebar: [
         "Tools/消息队列/RabbitMQ原理/RabbitMQ原理",
-        "Tools/Redis使用",
+        {
+            type: 'category',
+            label: 'Redis',
+            collapsed: true,
+            items: [
+                {
+                    type: 'category',
+                    label: 'Redis命令',
+                    collapsed: true,
+                    items: [
+                        'Tools/Redis/Redis命令/Redis键(Key)/Redis键(Key)',
+                        'Tools/Redis/Redis命令/Redis字符串(String)/Redis字符串(String)',
+                        'Tools/Redis/Redis命令/Redis列表(List)/Redis列表(List)',
+                        'Tools/Redis/Redis命令/Redis哈希(Hash)/Redis哈希(Hash)',
+                        'Tools/Redis/Redis命令/Redis集合(Set)/Redis集合(Set)',
+                        'Tools/Redis/Redis命令/Redis有序集合(Sorted Set)/Redis有序集合(Sorted Set)',
+                        'Tools/Redis/Redis命令/Redis HyperLogLog/Redis HyperLogLog',
+                        'Tools/Redis/Redis命令/Redis事务/Redis事务',
+                        'Tools/Redis/Redis命令/Redis GEO/Redis GEO',
+                        'Tools/Redis/Redis命令/Redis Stream/Redis Stream',
+                    ],
+                },
+                {
+                    type: 'category',
+                    label: '其他',
+                    collapsed: true,
+                    items: [
+                        'Tools/Redis/Redis内存淘汰/Redis内存淘汰',
+                        'Tools/Redis/Redis持久化/Redis持久化',
+                        'Tools/Redis/Redis高可用/Redis高可用',
+                        'Tools/Redis/高并发缓存问题/高并发缓存问题',
+                    ],
+                },
+            ],
+        },
     ],
     // But you can create a sidebar manually
     /*

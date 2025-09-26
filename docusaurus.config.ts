@@ -23,7 +23,11 @@ const config: Config = {
   trailingSlash: false, // 明确关闭结尾斜杠
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    }
+  },
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -120,6 +124,11 @@ const config: Config = {
               type: 'docSidebar',
               label: 'UML',
               sidebarId: 'umlSidebar',
+            },
+            {
+              type: 'docSidebar',
+              label: '系统架构',
+              sidebarId: 'systemStructureSidebar',
             },
           ],
         },

@@ -37,7 +37,7 @@ mkdir -p /data/docker/minio/{config,data}
 #### 启动容器
 
 ```bash
-docker run -p 9000:9000 -p 9090:9090 \
+docker run -p 9000:9000 -p 9001:9001 \
      --net=host \
      --name minio \
      -d --restart=always \
