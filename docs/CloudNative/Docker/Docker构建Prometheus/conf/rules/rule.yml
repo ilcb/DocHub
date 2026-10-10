@@ -1,0 +1,13 @@
+groups:
+- name: Hosts.rules
+  rules:
+  - alert: HostDown
+    expr: up{job=~"node-exporter|prometheus|grafana|alertmanager"} == 0
+    for: 0m
+    labels:
+      severity: ERROR
+    annotations:
+      title: 'Instance down'
+      summary: "{{$labels.instance}}"
+      description: "主机: 【{{ $labels.instance }}】has been down for more than 1 minute"
+# 注：==0 为报警条件，当有服务宕机时会告警，如果测试需改为 1

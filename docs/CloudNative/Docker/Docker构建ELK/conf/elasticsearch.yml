@@ -1,0 +1,23 @@
+cluster.name: "es-app-cluster"
+# 确保 Elasticsearch 监听所有接口
+network.host: 0.0.0.0
+node.name: es-node01
+path.data: /usr/share/elasticsearch/data
+path.logs: /usr/share/elasticsearch/logs
+discovery.type: single-node
+xpack.security.enabled: true
+bootstrap.memory_lock: true
+
+# 禁用证书检查（HTTP 明文访问，内网测试环境）
+xpack.security.http.ssl.enabled: false
+xpack.security.transport.ssl.enabled: false
+
+# GeoIP 数据库用于将 IP 地址映射到地理位置信息，关闭它
+ingest.geoip.downloader.enabled: false
+
+# 添加这个配置以后在 kibana 中才会显示联机状态
+xpack.monitoring.collection.enabled: true
+
+# 跨域支持（方便前端直连调试）
+http.cors.enabled: true
+http.cors.allow-origin: "*"

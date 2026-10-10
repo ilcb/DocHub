@@ -1,0 +1,99 @@
+# ============================================================
+# ELK（Elasticsearch + Kibana + Logstash）—— docker-compose 部署版本
+#
+# 安全说明：镜像默认开启 xpack 安全（xpack.security.enabled=true）。
+#   首次启动后需为内置用户设置统一密码：
+#     docker compose exec elasticsearch ./bin/elasticsearch-setup-passwords interactive
+#   把设置的密码同步到 .env 的 ELASTIC_PASSWORD / KIBANA_PASSWORD / LOGSTASH_PASSWORD，
+#   然后 docker compose up -d 重建 kibana / logstash。
+#
+# 常用命令（在本目录 Docker构建ELK/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  elasticsearch:
+    image: ${ELASTIC_IMAGE}
+    container_name: ${ELASTIC_CONTAINER_NAME}
+    restart: always
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
+      - TZ=${TZ}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "${ELASTIC_PORT}:9200"
+      - "${ELASTIC_TRANSPORT_PORT}:9300"
+    volumes:
+      - ${ELK_CONF_DIR}/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ${ELASTIC_DATA_DIR:-es-data}:/usr/share/elasticsearch/data
+      - ${ELASTIC_LOGS_DIR:-es-logs}:/usr/share/elasticsearch/logs
+      - ${ELASTIC_PLUGINS_DIR:-es-plugins}:/usr/share/elasticsearch/plugins
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -u elastic:${ELASTIC_PASSWORD} http://127.0.0.1:9200/_cluster/health | grep -qE '\"(green|yellow)\"'"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+    networks:
+      - elk-network
+
+  kibana:
+    image: ${KIBANA_IMAGE}
+    container_name: ${KIBANA_CONTAINER_NAME}
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - TZ=${TZ}
+    ports:
+      - "${KIBANA_PORT}:5601"
+    volumes:
+      - ${ELK_CONF_DIR}/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ${KIBANA_DATA_DIR:-kb-data}:/usr/share/kibana/data
+      - ${KIBANA_LOGS_DIR:-kb-logs}:/usr/share/kibana/logs
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk-network
+
+  logstash:
+    image: ${LOGSTASH_IMAGE}
+    container_name: ${LOGSTASH_CONTAINER_NAME}
+    restart: always
+    environment:
+      - LOGSTASH_ELASTICSEARCH_PASSWORD=${LOGSTASH_PASSWORD}
+      - TZ=${TZ}
+    ports:
+      - "${LOGSTASH_PORT}:4560"
+    volumes:
+      - ${ELK_CONF_DIR}/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ${ELK_CONF_DIR}/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+      - ${ELK_CONF_DIR}/pipeline:/usr/share/logstash/pipeline
+      - ${LOGSTASH_DATA_DIR:-ls-data}:/usr/share/logstash/data
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk-network
+
+volumes:
+  es-data:
+  es-logs:
+  es-plugins:
+  kb-data:
+  kb-logs:
+  ls-data:
+
+networks:
+  elk-network:
+    driver: bridge

@@ -1,0 +1,75 @@
+# ============================================================
+# Jenkins（含 SonarQube 代码质量平台）—— docker-compose 部署版本
+#
+# 常用命令（在本目录 Docker构建Jenkins/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f jenkins
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+#
+# 说明：
+#   - jenkins 默认端口 8080，首次访问在浏览器输入
+#     /var/jenkins_home/secrets/initialAdminPassword 中的初始密码。
+#   - sonarqube 默认端口 9000，登录账号 admin/admin（首次登录强制改密）。
+#   - 如需 jenkins 在容器内调用 docker，需挂载宿主 docker.sock（见下方注释）。
+# ============================================================
+
+services:
+  postgres:
+    image: ${SONAR_POSTGRES_IMAGE}
+    container_name: sonarqube-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD}
+      POSTGRES_DB: sonar
+      TZ: ${TZ}
+    volumes:
+      - ${SONAR_DB_DIR:-sonar-db}:/var/lib/postgresql/data
+
+  sonarqube:
+    image: ${SONAR_IMAGE}
+    container_name: sonarqube
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD}
+      TZ: ${TZ}
+    ports:
+      - "${SONAR_PORT}:9000"
+    volumes:
+      - ${SONAR_DATA_DIR:-sonar-data}:/opt/sonarqube/data
+      - ${SONAR_LOGS_DIR:-sonar-logs}:/opt/sonarqube/logs
+      - ${SONAR_EXTENSIONS_DIR:-sonar-extensions}:/opt/sonarqube/extensions
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9000/api/system/status | grep -q '\"status\":\"UP\"'"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+
+  jenkins:
+    image: ${JENKINS_IMAGE}
+    container_name: jenkins
+    restart: always
+    ports:
+      - "${JENKINS_PORT}:8080"
+      - "${JENKINS_AGENT_PORT}:50000"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${JENKINS_HOME_DIR:-jenkins-home}:/var/jenkins_home
+      - /etc/localtime:/etc/localtime:ro
+      # 如需在容器内构建 Docker 镜像，取消下行注释（把宿主 docker 交给 jenkins 容器）
+      # - /var/run/docker.sock:/var/run/docker.sock
+      # - /usr/bin/docker:/usr/bin/docker
+
+volumes:
+  sonar-db:
+  sonar-data:
+  sonar-logs:
+  sonar-extensions:
+  jenkins-home:

@@ -1,0 +1,33 @@
+# ============================================================
+# Redis —— docker-compose 部署版本（独立按需启动）
+#
+# 常用命令（在本目录 Docker构建Redis/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f redis
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  redis:
+    image: ${REDIS_IMAGE}
+    container_name: ${REDIS_CONTAINER_NAME}
+    restart: unless-stopped
+    command: >
+      redis-server /etc/redis/redis.conf
+      --port ${REDIS_PORT}
+      --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - ${REDIS_DATA_DIR:-redis-data}:/data
+      - ${REDIS_CONF_DIR}/redis.conf:/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "${REDIS_PORT}", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  redis-data:

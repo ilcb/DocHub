@@ -1,0 +1,102 @@
+# ============================================================
+# OnlyOffice 文档服务器（伪集群）—— docker-compose 部署版本
+# PostgreSQL + 3 个 onlyoffice/documentserver 实例 + Nginx 负载均衡
+#
+# 常用命令（在本目录 Docker构建OnlyOffice/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+#
+# 说明：
+#   - 默认使用官方镜像 onlyoffice/documentserver:7.3.3（JWT 关闭）。
+#   - 如需 WOPI 协议 / 定制 logo，按文档第 3 节重新构建镜像后，
+#     把 .env 中 ONLYOFFICE_IMAGE 改为自定义镜像名即可。
+# ============================================================
+
+x-onlyoffice: &onlyoffice
+  image: ${ONLYOFFICE_IMAGE}
+  restart: always
+  stdin_open: true
+  stop_grace_period: 60s
+  privileged: true
+  environment:
+    DB_TYPE: postgres
+    DB_HOST: postgres
+    DB_PORT: 5432
+    DB_NAME: onlyoffice
+    DB_USER: onlyoffice
+    DB_PASS: onlyoffice
+    JWT_ENABLED: "false"
+  depends_on:
+    - postgres
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: onlyoffice-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: onlyoffice
+      POSTGRES_PASSWORD: onlyoffice
+      POSTGRES_DB: onlyoffice
+      TZ: ${TZ}
+    volumes:
+      - ${ONLYOFFICE_DB_DIR:-oo-postgres-data}:/var/lib/postgresql/data
+
+  onlyoffice-8091:
+    <<: *onlyoffice
+    container_name: onlyoffice-8091
+    ports:
+      - "8091:80"
+    volumes:
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/logs:/var/log/onlyoffice
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/data:/var/www/onlyoffice/Data
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/lib:/var/lib/onlyoffice
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/db:/var/lib/postgresql
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/cache/files:/var/lib/onlyoffice/documentserver/App_Data/cache/files
+      - /usr/share/fonts
+
+  onlyoffice-8092:
+    <<: *onlyoffice
+    container_name: onlyoffice-8092
+    ports:
+      - "8092:80"
+    volumes:
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/logs:/var/log/onlyoffice
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/data:/var/www/onlyoffice/Data
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/lib:/var/lib/onlyoffice
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/db:/var/lib/postgresql
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/cache/files:/var/lib/onlyoffice/documentserver/App_Data/cache/files
+      - /usr/share/fonts
+
+  onlyoffice-8093:
+    <<: *onlyoffice
+    container_name: onlyoffice-8093
+    ports:
+      - "8093:80"
+    volumes:
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/logs:/var/log/onlyoffice
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/data:/var/www/onlyoffice/Data
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/lib:/var/lib/onlyoffice
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/db:/var/lib/postgresql
+      - ${ONLYOFFICE_DATA_DIR:-oo-data}/cache/files:/var/lib/onlyoffice/documentserver/App_Data/cache/files
+      - /usr/share/fonts
+
+  nginx:
+    image: ${NGINX_IMAGE}
+    container_name: onlyoffice-nginx
+    restart: always
+    ports:
+      - "${ONLYOFFICE_LB_PORT}:80"
+    volumes:
+      - ${ONLYOFFICE_CONF_DIR}/nginx/office.conf:/etc/nginx/conf.d/office.conf:ro
+    depends_on:
+      - onlyoffice-8091
+      - onlyoffice-8092
+      - onlyoffice-8093
+
+volumes:
+  oo-postgres-data:
+  oo-data:

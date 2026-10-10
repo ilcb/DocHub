@@ -1,0 +1,32 @@
+# ============================================================
+# ZooKeeper —— docker-compose 部署版本（独立按需启动）
+#
+# 常用命令（在本目录 Docker构建ZooKeeper/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f zookeeper
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  zookeeper:
+    image: ${ZOOKEEPER_IMAGE}
+    container_name: ${ZOOKEEPER_CONTAINER_NAME}
+    restart: unless-stopped
+    ports:
+      - "${ZOOKEEPER_PORT}:2181"
+    volumes:
+      - ${ZOOKEEPER_DATA_DIR:-zk-data}:/data
+      - ${ZOOKEEPER_CONF_DIR:-zk-conf}:/conf
+      - ${ZOOKEEPER_LOG_DIR:-zk-datalog}:/datalog
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc 127.0.0.1 2181 | grep imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  zk-data:
+  zk-conf:
+  zk-datalog:

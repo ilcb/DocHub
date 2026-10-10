@@ -1,0 +1,38 @@
+# ============================================================
+# MongoDB —— docker-compose 部署版本（独立按需启动）
+#
+# 常用命令（在本目录 Docker构建MongoDB/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f mongodb
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  mongodb:
+    image: ${MONGO_IMAGE}
+    container_name: ${MONGO_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: admin
+      TZ: ${TZ}
+    ports:
+      - "${MONGO_PORT}:27017"
+    command:
+      - "--auth"
+      - "--bind_ip_all"
+    volumes:
+      - ${MONGO_DATA_DIR:-mongo-data}:/data/db
+      - ${MONGO_CONFIG_DIR:-mongo-config}:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mongo-data:
+  mongo-config:

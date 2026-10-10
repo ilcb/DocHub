@@ -1,0 +1,37 @@
+# ============================================================
+# MySQL —— docker-compose 部署版本（独立按需启动）
+#
+# 常用命令（在本目录 Docker构建MySQL/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f mysql
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  mysql:
+    image: ${MYSQL_IMAGE}
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: ${TZ}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ${MYSQL_DATA_DIR:-mysql-data}:/var/lib/mysql
+      - ${MYSQL_CONF_DIR}/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ${MYSQL_LOG_DIR:-mysql-log}:/var/log/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql-data:
+  mysql-log:

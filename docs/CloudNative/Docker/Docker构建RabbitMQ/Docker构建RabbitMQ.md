@@ -1,6 +1,6 @@
 ---
 title: Docker 构建 RabbitMQ
-description: "Docker 构建 RabbitMQ"
+description: "Docker 构建 RabbitMQ（docker-compose 部署版本）"
 slug: "/cloud-native/docker/build-rabbitmq"
 hide_table_of_contents: false
 keywords: ["Docker"]
@@ -8,88 +8,112 @@ tags: ["Docker", "CloudNative"]
 date: 2017-08-01
 categories: ["Docker"]
 ---
-## Docker 构建 RabbitMQ
+## Docker 构建 RabbitMQ（docker-compose 部署版本）
 
-## 1.查询 RabbitMQ 镜像
+RabbitMQ 是开源的消息中间件。本文按 docker-compose 方式部署 RabbitMQ（带 management 插件的镜像，**无需手动启用 `rabbitmq_management`**），镜像、端口、账号、目录、容器名等全部集中在 `.env` 中管理。
 
-``````bash
-docker search rabbitmq
-``````
+## 1. 宿主目录
 
-![查询镜像](img/查询镜像.jpg)
+| 宿主目录 | 用途 | 容器内用户 |
+|---------|------|-----------|
+| `/data/runtime/docker/rabbitmq/data` | 消息数据 | uid 999 |
+| `/data/runtime/docker/rabbitmq/conf` | 配置目录 | uid 999 |
+| `/data/runtime/docker/rabbitmq/log` | 运行日志 | uid 999 |
 
-## 2.拉取镜像
+> 若将 `.env` 中 `RABBITMQ_DATA_DIR` / `RABBITMQ_CONF_DIR` / `RABBITMQ_LOG_DIR` 留空，则回退使用 Docker 命名卷，无需创建宿主目录。
 
-```bash
-docker pull rabbitmq
-```
+## 2. 创建宿主目录并设置权限
 
-## 3.创建目录授权文件夹
-```bash
-# 创建目录
-mkdir -p /data/docker/rabbitmq/{conf,data,log}
-```
+bind mount 首次使用需先建目录并授权（容器内 rabbitmq 用户 uid 999）：
 
 ```bash
-# 授权文件夹
-chmod -R 777 /data/docker/rabbitmq
+mkdir -p /data/runtime/docker/rabbitmq/{data,conf,log}
+chown -R 999:999 /data/runtime/docker/rabbitmq
 ```
 
-## 4.创建并运行 RabbitMQ 容器
+## 3. 编制 .env
+
+在本目录创建 `.env` 文件（内容如下，按需修改）：
 
 ```bash
-docker run -id --name rabbitmq \
-           --restart=always \
-           -p 15672:15672 \
-           -p 5672:5672 \
-           -e RABBITMQ_DEFAULT_VHOST=/ \
-           -e RABBITMQ_DEFAULT_USER=admin \
-           -e RABBITMQ_DEFAULT_PASS=admin123456 \
-           -v /data/docker/rabbitmq/data:/var/lib/rabbitmq \
-           -v /data/docker/rabbitmq/conf:/etc/rabbitmq \
-           -v /data/docker/rabbitmq/log:/var/log/rabbitmq \
-           --hostname MyRabbitMQ \
-           rabbitmq:latest
+# ---------- RabbitMQ 环境变量（集中管理） ----------
+RABBITMQ_IMAGE=rabbitmq:3.13-management
+RABBITMQ_CONTAINER_NAME=rabbitmq
+# RabbitMQ 按节点名（hostname）存储数据，勿随意更改
+RABBITMQ_HOSTNAME=rabbitmq
+RABBITMQ_DEFAULT_VHOST=/
+RABBITMQ_DEFAULT_USER=admin
+RABBITMQ_DEFAULT_PASS=admin123456
+RABBITMQ_AMQP_PORT=5672
+RABBITMQ_MGMT_PORT=15672
+# 宿主机数据目录（统一约定 /data/runtime/docker/<服务>）；留空则回退到命名卷
+RABBITMQ_DATA_DIR=/data/runtime/docker/rabbitmq/data
+RABBITMQ_CONF_DIR=/data/runtime/docker/rabbitmq/conf
+RABBITMQ_LOG_DIR=/data/runtime/docker/rabbitmq/log
+TZ=Asia/Shanghai
 ```
-### 参数解析
 
-> -id
->
-> + i：以交互模式运行容器，通常与 -t 同时使用；
-> + d：表示后台启动 rabbitmq；–name 给容器命名
->
-> -p：将容器的端口 5672（应用访问端口）和 15672 （控制台 Web 端口号）映射到主机中；
->
-> -e：指定环境变量：
->
-> - RABBITMQ_DEFAULT_VHOST：默认虚拟机名；
->
-> - RABBITMQ_DEFAULT_USER：默认的用户名；
->
-> - RABBITMQ_DEFAULT_PASS：默认的用户密码；
->
-> --hostname：指定主机名(RabbitMQ 的一个重要注意事项是它根据所谓的 节点名称 存储数据，默认为主机名)
-> --name rabbitmq：设置容器名称；
-> rabbitmq：容器使用的镜像名称
+## 4. .env 变量说明
 
-## 4.启动 rabbit_management
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `RABBITMQ_IMAGE` | 镜像版本（management 版） | `rabbitmq:3.13-management` |
+| `RABBITMQ_CONTAINER_NAME` | 容器名 | `rabbitmq` |
+| `RABBITMQ_HOSTNAME` | 节点名（RabbitMQ 按节点名存储数据，勿随意改） | `rabbitmq` |
+| `RABBITMQ_AMQP_PORT` | 应用访问端口 | `5672` |
+| `RABBITMQ_MGMT_PORT` | 控制台 Web 端口 | `15672` |
+| `RABBITMQ_DEFAULT_VHOST` / `_USER` / `_PASS` | 默认虚拟机 / 账号 / 密码 | `/` / `admin` / `admin123456` |
+| `RABBITMQ_DATA_DIR` / `_CONF_DIR` / `_LOG_DIR` | 数据 / 配置 / 日志目录，留空回退命名卷 | `/data/runtime/docker/rabbitmq/...` |
+| `TZ` | 时区 | `Asia/Shanghai` |
 
-### 方法一
+## 5. docker-compose.yml
+
+在本目录创建 `docker-compose.yml`：
+
+```yaml
+services:
+  rabbitmq:
+    image: ${RABBITMQ_IMAGE}
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    restart: unless-stopped
+    hostname: ${RABBITMQ_HOSTNAME}
+    environment:
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      TZ: ${TZ}
+    ports:
+      - "${RABBITMQ_AMQP_PORT}:5672"    # 应用访问端口
+      - "${RABBITMQ_MGMT_PORT}:15672"   # 控制台 Web 端口
+    volumes:
+      - ${RABBITMQ_DATA_DIR:-rabbitmq-data}:/var/lib/rabbitmq
+      - ${RABBITMQ_CONF_DIR:-rabbitmq-conf}:/etc/rabbitmq
+      - ${RABBITMQ_LOG_DIR:-rabbitmq-log}:/var/log/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  rabbitmq-data:
+  rabbitmq-conf:
+  rabbitmq-log:
+```
+
+## 6. 启动
 
 ```bash
--- 进入rabbitmq容器
-docker exec -it rabbitmq /bin/bash
--- 执行命令
-rabbitmq-plugins enable rabbitmq_management
+cd Docker构建RabbitMQ
+docker compose up -d
+docker compose ps
+docker compose logs -f rabbitmq
+docker compose down        # 停止并移除容器（命名卷数据保留）
+docker compose down -v     # 连数据卷一起清空
 ```
 
-### 方法二
+## 7. 验证
 
-```bash
-docker exec -it rabbitmq rabbitmq-plugins enable rabbitmq_management
-```
-
-## 5.登录控制台
-浏览器请求地址 `http://localhost:15672`，输入用户名/密码: guest/guest
+浏览器请求 `http://localhost:15672`，输入 `.env` 中的账号密码（默认 `admin/admin123456`）。
 
 ![rabbitmq控制台](img/rabbitmq控制台.jpg)

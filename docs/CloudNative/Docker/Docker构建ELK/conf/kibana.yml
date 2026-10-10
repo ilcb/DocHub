@@ -1,0 +1,12 @@
+# Kibana 服务监听的网络接口地址
+server.host: "0.0.0.0"
+# Kibana 服务在接收到关闭信号后等待的时间
+server.shutdownTimeout: "10s"
+elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+
+# 启用或禁用 Kibana 监控界面中对 Elasticsearch 容器的监控
+monitoring.ui.container.elasticsearch.enabled: true
+# 界面汉化
+i18n.locale: "zh-CN"
+# 启用或禁用 Kibana 报告功能的角色管理
+xpack.reporting.roles.enabled: false

@@ -1,6 +1,6 @@
 ---
 title: Docker 构建 ELK
-description: "Docker 构建 ELK"
+description: "Docker 构建 ELK（docker-compose 部署版本）"
 slug: "/cloud-native/docker/build-elk"
 hide_table_of_contents: false
 keywords: ["Docker", "ELK"]
@@ -8,382 +8,216 @@ tags: ["Docker", "ELK", "CloudNative"]
 date: 2017-08-01
 categories: ["Docker"]
 ---
-## Docker 构建 ELK
+## Docker 构建 ELK（docker-compose 部署版本）
+
 ## ELK 架构
-+ Elasticsearch 是个开源分布式搜索引擎，提供搜集、分析、存储数据三大功能。
-+ Logstash 主要是用来日志的搜集、分析、过滤日志的工具，支持大量的数据获取方式。
-+ Kibana 也是一个开源和免费的工具，Kibana 可以为 Logstash 和 ElasticSearch 提供的日志分析友好的 Web 界面，可以帮助汇总、分析和搜索重要数据日志。
+
++ Elasticsearch：开源分布式搜索引擎，提供搜集、分析、存储数据三大功能。
++ Logstash：日志的搜集、分析、过滤工具，支持大量的数据获取方式。
++ Kibana：为 Logstash 和 ElasticSearch 提供日志分析友好的 Web 界面，帮助汇总、分析和搜索重要数据日志。
 
 ![ELK架构](img/ELK架构.jpg)
-### 成员
-#### ElasticSearch
-定义：Elasticsearch 是一个基于 Lucene 的分布式、RESTful 风格的搜索和数据分析引擎
 
-主要功能：
+本文按 docker-compose 方式部署 **Elasticsearch + Kibana + Logstash** 三件套，镜像、端口、密码、目录、容器名等可配置项全部集中在 `.env` 中管理，其余配置项放在 `ELK_CONF_DIR` 下（默认 `/data/runtime/docker/elk/conf`）。
 
-+ 全文搜索：可以快速地执行全文搜索，返回相关性最高的结
-+ 实时索引：支持实时索引数据，意味着数据可以几乎实时地被搜索到
-+ 分布式架构：设计为分布式系统，可以水平扩展，处理 PB 级的数据
-+ 数据分析：除了搜索，还可以执行复杂的数据分析，如聚合、排序和过滤
-+ 使用场景：日志分析、实时监控、搜索引擎、数据仓库等
+## 1. 宿主目录
 
-#### Logstash
-定义：Logstash 是一个开源的服务器端数据处理管道，它能够同时从多个来源采集数据，转换数据，然后将数据发送到指定的“stash”（存储库）中
+| 宿主目录 | 用途 | 容器内用户 |
+|---------|------|-----------|
+| `/data/runtime/docker/elk/elasticsearch/data` | ES 数据 | uid 1000 |
+| `/data/runtime/docker/elk/elasticsearch/logs` | ES 日志 | uid 1000 |
+| `/data/runtime/docker/elk/elasticsearch/plugins` | ES 插件 | uid 1000 |
+| `/data/runtime/docker/elk/kibana/data` | Kibana 数据 | uid 1000 |
+| `/data/runtime/docker/elk/kibana/logs` | Kibana 日志 | uid 1000 |
+| `/data/runtime/docker/elk/logstash/data` | Logstash 数据 | uid 1000 |
+| `/data/runtime/docker/elk/conf` | 配置文件（elasticsearch/kibana/logstash.yml、pipeline/） | 只读 |
 
-主要功能：
+> 数据目录：`.env` 中 `*_DATA_DIR` 等留空则回退使用 Docker 命名卷；**配置目录 `ELK_CONF_DIR` 为必填**，需先按第 2 节复制配置。
 
-+ 数据采集：能够从各种数据源（如日志文件、系统事件、网络包、社交媒体 feeds 等）中采集数据
-+ 数据转换：可以将非结构化的日志数据转换为结构化的 JSON 格式，便于后续处理和分析
-+ 数据输出：可以将处理后的数据发送到各种目的地，如 Elasticsearch、数据库、消息队列等
-+ 使用场景：日志管理、数据转换、集成各种不同数据源
+## 2. 创建宿主目录并设置权限
 
-#### Kibana
-定义：Kibana 是一个为 Elasticsearch 设计的开源数据可视化和分析工具
-
-主要功能：
-
-+ 可视化：提供丰富的可视化选项，如柱状图、折线图、饼图、地图等，帮助用户直观地理解数据
-+ Dashboard：可以创建和共享交互式的 Dashboard，展示多个可视化结果
-+ 探索数据：允许用户通过简单的界面探索 Elasticsearch 中的数据
-+ 实时展示：与 Elasticsearch 结合，可以实时展示数据变化
-+ 使用场景：与 Elasticsearch 配合使用，进行数据可视化、日志分析、业务监控等
-
-## 前置准备
-### 下载镜像
-
-下载 elasticsearch 镜像
+bind mount 首次使用需先建目录并授权（es/kibana/logstash 容器内用户 uid 1000）：
 
 ```bash
-docker pull elasticsearch:8.17.0
+# 1) 配置目录：首次部署把部署包 conf/ 复制到宿主根，之后直接修改宿主目录下的配置
+mkdir -p /data/runtime/docker/elk/conf
+cp -r ./conf/. /data/runtime/docker/elk/conf/
+
+# 2) 数据目录
+mkdir -p /data/runtime/docker/elk/{elasticsearch/{data,logs,plugins},kibana/{data,logs},logstash/data}
+chown -R 1000:1000 /data/runtime/docker/elk
 ```
 
-下载 kibana 镜像
+## 3. 编制 .env
+
+在本目录创建 `.env` 文件（内容如下，按需修改）：
 
 ```bash
-docker pull kibana:8.17.0
+# ---------- ELK 环境变量（集中管理） ----------
+
+# ===== 镜像配置 =====
+ELASTIC_IMAGE=elasticsearch:8.17.0
+KIBANA_IMAGE=kibana:8.17.0
+LOGSTASH_IMAGE=logstash:8.17.0
+
+# ===== 容器名 =====
+ELASTIC_CONTAINER_NAME=elasticsearch
+KIBANA_CONTAINER_NAME=kibana
+LOGSTASH_CONTAINER_NAME=logstash
+
+# ===== 宿主机端口（宿主机:容器）=====
+ELASTIC_PORT=9200
+ELASTIC_TRANSPORT_PORT=9300
+KIBANA_PORT=5601
+LOGSTASH_PORT=4560
+
+# ===== 密码（首次启动后执行 elasticsearch-setup-passwords 后同步更新）=====
+ELASTIC_PASSWORD=elastic
+KIBANA_PASSWORD=elastic
+LOGSTASH_PASSWORD=elastic
+
+# ===== 宿主机数据目录（统一约定 /data/runtime/docker/<服务>）；留空则回退到命名卷 =====
+ELASTIC_DATA_DIR=/data/runtime/docker/elk/elasticsearch/data
+ELASTIC_LOGS_DIR=/data/runtime/docker/elk/elasticsearch/logs
+ELASTIC_PLUGINS_DIR=/data/runtime/docker/elk/elasticsearch/plugins
+KIBANA_DATA_DIR=/data/runtime/docker/elk/kibana/data
+KIBANA_LOGS_DIR=/data/runtime/docker/elk/kibana/logs
+LOGSTASH_DATA_DIR=/data/runtime/docker/elk/logstash/data
+ELK_CONF_DIR=/data/runtime/docker/elk/conf
+TZ=Asia/Shanghai
 ```
 
-下载 logstash 镜像
+## 4. .env 变量说明
 
-```bash
-docker pull logstash:8.17.0
-```
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `ELASTIC_IMAGE` / `KIBANA_IMAGE` / `LOGSTASH_IMAGE` | 镜像版本 | `elasticsearch:8.17.0` 等 |
+| `ELASTIC_PORT` / `ELASTIC_TRANSPORT_PORT` | ES HTTP / 节点通信端口 | `9200` / `9300` |
+| `KIBANA_PORT` | Kibana 端口 | `5601` |
+| `LOGSTASH_PORT` | Logstash TCP 输入端口 | `4560` |
+| `ELASTIC_PASSWORD` / `KIBANA_PASSWORD` / `LOGSTASH_PASSWORD` | 各组件访问 ES 的密码 | `elastic` |
+| `ELASTIC_DATA_DIR` 等 | 数据目录，留空回退命名卷 | `/data/runtime/docker/elk/...` |
+| `ELK_CONF_DIR` | 配置目录（必填，先复制 conf/） | `/data/runtime/docker/elk/conf` |
+| `TZ` | 时区 | `Asia/Shanghai` |
 
-### 创建挂载目录
+## 5. docker-compose.yml
 
-创建 elasticsearch 挂载目录
-
-```bash
-sudo mkdir -p /data/docker/elk/elasticsearch/{config,data,logs,plugins}
-```
-
-创建 kibana 挂载目录
-
-```bash
-sudo mkdir -p /data/docker/elk/kibana/{config,data,logs}
-```
-
-创建 logstash 挂载目录
-
-```bash
-sudo mkdir -p /data/docker/elk/logstash/{config,data,pipeline}
-```
-
-设置权限将/usr/local/elk 及其所有子目录的权限设置为当前用户的 UID 和 GID
-
-```bash
-sudo chown -R $(id -u):$(id -g) /data/docker/elk 
-```
-
-设置权限
-
-```bash
-sudo chmod -R 777 /data/docker/elk
-```
-
-
-
-## 安装 ELK
-
-### 准备 docker-compose.yml
-
-```bash
-cd /data/docker/elk && vi docker-compose.yml
-```
-
-配置如下内容:
+在本目录创建 `docker-compose.yml`：
 
 ```yaml
-version: '3'
- 
 services:
   elasticsearch:
-    image: elasticsearch:8.17.0
-    container_name: elasticsearch
+    image: ${ELASTIC_IMAGE}
+    container_name: ${ELASTIC_CONTAINER_NAME}
+    restart: always
     environment:
-      - cluster.name=es-app-cluster
-      - bootstrap.memory_lock=true
-      - node.name=es-master
-      - discovery.type=single-node
-      - xpack.security.enabled=true      
-      - xpack.security.http.ssl.enabled=false
-      - xpack.security.transport.ssl.enabled=false
-      - ingest.geoip.downloader.enabled=false  # 使用正确的配置项
-      - ELASTIC_USERNAME=elastic
-      - ELASTIC_PASSWORD=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
+      - TZ=${TZ}
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    volumes:
-      #- /data/docker/elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      #- /data/docker/elk/elasticsearch/data:/usr/share/elasticsearch/data
-      #- /data/docker/elk/elasticsearch/logs:/usr/share/elasticsearch/logs
-      #- /data/docker/elk/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
-      - /etc/localtime:/etc/localtime:ro
     ports:
-      - 9200:9200
-      - 9300:9300
+      - "${ELASTIC_PORT}:9200"
+      - "${ELASTIC_TRANSPORT_PORT}:9300"
+    volumes:
+      - ${ELK_CONF_DIR}/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ${ELASTIC_DATA_DIR:-es-data}:/usr/share/elasticsearch/data
+      - ${ELASTIC_LOGS_DIR:-es-logs}:/usr/share/elasticsearch/logs
+      - ${ELASTIC_PLUGINS_DIR:-es-plugins}:/usr/share/elasticsearch/plugins
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - elk-network
-    restart: always
-    privileged: true
- 
+
   kibana:
-    image: kibana:8.17.0
-    container_name: kibana
+    image: ${KIBANA_IMAGE}
+    container_name: ${KIBANA_CONTAINER_NAME}
+    restart: always
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=elastic
-      - XPACK_SECURITY_ENABLED=true
-      - SERVER_NAME=kibana
-    volumes:
-      #- /data/docker/elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
-      #- /data/docker/elk/kibana/data:/usr/share/kibana/data
-      #- /data/docker/elk/kibana/logs:/usr/share/kibana/logs
-      - /etc/localtime:/etc/localtime:ro
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - TZ=${TZ}
     ports:
-      - 5601:5601
-    networks:
-      - elk-network
+      - "${KIBANA_PORT}:5601"
+    volumes:
+      - ${ELK_CONF_DIR}/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ${KIBANA_DATA_DIR:-kb-data}:/usr/share/kibana/data
+      - ${KIBANA_LOGS_DIR:-kb-logs}:/usr/share/kibana/logs
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
       - elasticsearch
-    restart: always
-    privileged: true
-    
-  logstash:
-    image: logstash:8.17.0
-    container_name: logstash
-    ports:
-       - 4560:4560
-    privileged: true
-    environment:
-      - TZ=Asia/Shanghai
-    volumes:
-      #挂载logstash的配置文件
-      #- /data/docker/elk/logstash/config/logstash.yml:/usr/share/logstash/conf/logstash.yml
-      #- /data/docker/elk/logstash/config:/usr/share/logstash/conf 
-      #- /data/docker/elk/logstash/pipeline:/usr/share/logstash/pipeline
-      - /etc/localtime:/etc/localtime:ro
-    depends_on:
-      - elasticsearch 
-    #links:
-      #可以用es这个域名访问elasticsearch服务
-      # - elasticsearch:es 
     networks:
       - elk-network
-    
+
+  logstash:
+    image: ${LOGSTASH_IMAGE}
+    container_name: ${LOGSTASH_CONTAINER_NAME}
+    restart: always
+    environment:
+      - LOGSTASH_ELASTICSEARCH_PASSWORD=${LOGSTASH_PASSWORD}
+      - TZ=${TZ}
+    ports:
+      - "${LOGSTASH_PORT}:4560"
+    volumes:
+      - ${ELK_CONF_DIR}/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ${ELK_CONF_DIR}/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+      - ${ELK_CONF_DIR}/pipeline:/usr/share/logstash/pipeline
+      - ${LOGSTASH_DATA_DIR:-ls-data}:/usr/share/logstash/data
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk-network
+
 networks:
   elk-network:
-    driver: bridge  
+    driver: bridge
 ```
 
-### 启动容器
+## 6. 设置密码（首次启动必须）
+
+镜像默认开启 xpack 安全（`xpack.security.enabled=true`，见 `${ELK_CONF_DIR}/elasticsearch.yml`）。首次启动后，为内置用户统一设置密码：
 
 ```bash
-docker-compose up -d 
-```
-
-
-
-```bash
-docker-compose ps 
-```
-
-### 设置密码
-
-```bash
-#进入elasticsearch容器
+# 进入 elasticsearch 容器
 docker exec -it elasticsearch /bin/bash
-
-执行下面的代码
+# 交互式设置所有内置用户密码（最低 6 个字符，可统一设为 elastic）
 ./bin/elasticsearch-setup-passwords interactive
-```
-
-密码要求最低 6 个字符，为了方便将所有的用户的密码都设置为`elastic`:
-
-![set_password](img/set_password.jpg)
-
-修改密码结束后 exit 退出容器
-
-重启服务
-
-```bash
+# 退出并重启服务
+exit
 docker restart elasticsearch
 ```
 
-### 验证服务
+![set_password](img/set_password.jpg)
 
-浏览器请求: `http://172.31.12.215:9200`
+然后把设置的密码同步到 `.env` 的 `ELASTIC_PASSWORD` / `KIBANA_PASSWORD` / `LOGSTASH_PASSWORD`，再执行 `docker compose up -d` 重建 kibana / logstash。
+
+## 7. 启动
+
+```bash
+cd Docker构建ELK
+docker compose up -d
+docker compose ps
+docker compose logs -f
+docker compose down        # 停止并移除容器（命名卷数据保留）
+docker compose down -v     # 连数据卷一起清空
+```
+
+## 8. 验证
+
+浏览器请求: `http://<服务器IP>:9200`（需携带账号密码验证）
+
 ![elasticsearch_install_success](img/elasticsearch_install_success.jpg)
 
+Kibana 控制台: `http://<服务器IP>:5601`
 
+### 管道示例（`${ELK_CONF_DIR}/pipeline/test.conf`）
 
-## 配置 ELK
+Logstash 监听 TCP 4560 端口，把收到的日志写入 Elasticsearch：
 
-### 配置 elasticsearch
-
-#### 目录映射
-
-elasticsearch 容器目录复制到宿主机对应目录
-```bash
-docker cp elasticsearch:/usr/share/elasticsearch/config /data/docker/elk/elasticsearch/
-docker cp elasticsearch:/usr/share/elasticsearch/data /data/docker/elk/elasticsearch/
-docker cp elasticsearch:/usr/share/elasticsearch/logs /data/docker/elk/elasticsearch/
-docker cp /usr/share/elasticsearch/plugins /data/docker/elk/elasticsearch/
-```
-
-#### 修改 elasticsearch.yml
-
-```bash
-cd /data/docker/elk/elasticsearch/config/ && vi elasticsearch.yml
-```
-
-配置如下内容:
-
-```yaml
-cluster.name: "es-app-cluster"
-# 确保Elasticsearch监听所有接口
-network.host: 0.0.0.0
-node.name: es-node01
-path.data: /usr/share/elasticsearch/data
-path.logs: /usr/share/elasticsearch/logs
-discovery.type: single-node
-xpack.security.enabled: true
-bootstrap.memory_lock: true
-
-# 禁用证书检查
-xpack.security.http.ssl.enabled: false
-xpack.security.transport.ssl.enabled: false
-
-#GeoIP数据库用于将IP地址映射到地理位置信息,关闭它
-ingest.geoip.downloader.enabled: false
-
-# 添加这个配置以后在kibana中才会显示联机状态，否则会显示脱机状态
-xpack.monitoring.collection.enabled: true
-
-# 修改elasticseach.yml文件，追加
-http.cors.enabled: true
-http.cors.allow-origin: "*"
-```
-
-
-
-### 配置 kibana
-
-#### 目录映射
-
-kibana 容器目录复制到宿主机对应目录
-
-```bash
-docker cp kibana:/usr/share/kibana/config /data/docker/elk/kibana/
-docker cp kibana:/usr/share/kibana/data /data/docker/elk/kibana/
-docker cp kibana:/usr/share/kibana/logs /data/docker/elk/kibana/
-```
-
-#### 修改 kibana.yml
-
-```bash
-cd /data/docker/elk/kibana/config/ && vi kibana.yml
-```
-
-配置如下内容:
-
-```yaml
-#Kibana 服务监听的网络接口地址
-server.host: "0.0.0.0"
-#Kibana 服务在接收到关闭信号后等待的时间
-server.shutdownTimeout: "10s"
-elasticsearch.hosts: [ "http://elasticsearch:9200" ]
-
-#启用或禁用 Kibana 监控界面中对 Elasticsearch 容器的监控
-monitoring.ui.container.elasticsearch.enabled: true
-#界面汉化
-i18n.locale: "zh-CN"
-#启用或禁用 Kibana 报告功能的角色管理
-xpack.reporting.roles.enabled: false
-
-```
-
-
-
-### 配置 logstash
-
-#### 目录映射
-
-#拷贝已启动的容器中的文件到宿主机，用于重启挂载
-
-```bash
-docker cp logstash:/usr/share/logstash/config /data/docker/elk/logstash/
-docker cp logstash:/usr/share/logstash/data /data/docker/elk/logstash/
-docker cp logstash:/usr/share/logstash/pipeline /data/docker/elk/logstash/
-```
-
-#### 修改配置文件
-
-##### logstash.yml
-
-```bash
-vi /data/docker/elk/logstash/config/logstash.yml
-```
-
-配置内容
-
-```yaml
-http.host: "0.0.0.0"
-# 启用定时重新加载配置
-config.reload.automatic: true
-# 定时重新加载配置周期
-config.reload.interval: 3s
-
-xpack.monitoring.enabled: true
-xpack.monitoring.elasticsearch.hosts: [ "http://elasticsearch:9200" ]
-xpack.monitoring.elasticsearch.username: "elastic"
-xpack.monitoring.elasticsearch.password: "elastic"
-```
-
-##### pipelines.yml
-
-```bash
-vi /data/docker/elk/logstash/config/pipelines.yml
-```
-
-配置内容
-
-```bash
-pipeline.id: main
-path.config: /usr/share/logstash/pipeline/*.conf
-```
-
-
-
-##### pipeline.yml
-
-在`/data/docker/elk/logstash/pipeline`目录下创建 test.conf
-
-```bash
+```conf
 input {
   tcp {
     mode => "server"
@@ -394,112 +228,13 @@ input {
 
 output {
   elasticsearch {
-    hosts => ["elasticsearch:9200"]
+    hosts => ["http://elasticsearch:9200"]
+    user => "elastic"
+    password => "${LOGSTASH_ELASTICSEARCH_PASSWORD}"
     index => "logstash-%{+YYYY.MM.dd}"
   }
   stdout { codec => rubydebug }
 }
 ```
 
-### 修改 docker-compose.yml
-
-```yaml
-version: '3'
- 
-services:
-  elasticsearch:
-    image: elasticsearch:8.17.0
-    container_name: elasticsearch
-    environment:
-      - cluster.name=es-app-cluster
-      - bootstrap.memory_lock=true
-      - node.name=es-master
-      - discovery.type=single-node
-      - xpack.security.enabled=true      
-      - xpack.security.http.ssl.enabled=false
-      - xpack.security.transport.ssl.enabled=false
-      - ingest.geoip.downloader.enabled=false  # 使用正确的配置项
-      - ELASTIC_USERNAME=elastic
-      - ELASTIC_PASSWORD=elastic
-      - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - /data/docker/elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - /data/docker/elk/elasticsearch/data:/usr/share/elasticsearch/data
-      - /data/docker/elk/elasticsearch/logs:/usr/share/elasticsearch/logs
-      - /data/docker/elk/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - 9200:9200
-      - 9300:9300
-    networks:
-      - elk-network
-    restart: always
-    privileged: true
- 
-  kibana:
-    image: kibana:8.17.0
-    container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=elastic
-      - XPACK_SECURITY_ENABLED=true
-      - SERVER_NAME=kibana
-    volumes:
-      - /data/docker/elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
-      - /data/docker/elk/kibana/data:/usr/share/kibana/data
-      - /data/docker/elk/kibana/logs:/usr/share/kibana/logs
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - 5601:5601
-    networks:
-      - elk-network
-    depends_on:
-      - elasticsearch
-    restart: always
-    privileged: true
-    
-  logstash:
-    image: logstash:8.17.0
-    container_name: logstash
-    ports:
-       - 4560:4560
-    privileged: true
-    environment:
-      - TZ=Asia/Shanghai
-    volumes:
-      #挂载logstash的配置文件
-      - /data/docker/elk/logstash/config/logstash.yml:/usr/share/logstash/conf/logstash.yml
-      - /data/docker/elk/logstash/data:/usr/share/logstash/data 
-      - /data/docker/elk/logstash/config:/usr/share/logstash/conf 
-      - /data/docker/elk/logstash/pipeline:/usr/share/logstash/pipeline
-      - /etc/localtime:/etc/localtime:ro
-    depends_on:
-      - elasticsearch 
-    #links:
-      #可以用es这个域名访问elasticsearch服务
-      # - elasticsearch:es 
-    networks:
-      - elk-network
-    
-networks:
-  elk-network:
-    driver: bridge  
-```
-
-
-
-### 重新启动服务
-
-```bash
-docker-compose down
-
-docker-compose up -d
-```
-
-
-
+> `logstash.yml` 已开启 `config.reload.automatic: true`，修改管道文件后自动热加载，无需重启。

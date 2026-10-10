@@ -1,0 +1,52 @@
+# ============================================================
+# Nacos —— docker-compose 部署版本（独立按需启动）
+#
+# 默认 MODE=standalone（内嵌存储，不依赖外部数据库，开箱即用）。
+# 如需持久化到 MySQL，把 .env 中 SPRING_DATASOURCE_PLATFORM 置为 mysql，
+# 并填写 MYSQL_SERVICE_* 各项（指向已建好 nacos_config 库的 MySQL）。
+#
+# 常用命令（在本目录 Docker构建Nacos/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f nacos
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  nacos:
+    image: ${NACOS_IMAGE}
+    container_name: ${NACOS_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      MODE: standalone
+      PREFER_HOST_MODE: hostname
+      JVM_XMS: 256m
+      JVM_XMX: 256m
+      NACOS_AUTH_ENABLE: ${NACOS_AUTH_ENABLE}
+      # 以下为 MySQL 持久化配置（默认注释，不启用）
+      SPRING_DATASOURCE_PLATFORM: ${SPRING_DATASOURCE_PLATFORM}
+      MYSQL_SERVICE_HOST: ${MYSQL_SERVICE_HOST}
+      MYSQL_SERVICE_PORT: ${MYSQL_SERVICE_PORT}
+      MYSQL_SERVICE_DB_NAME: ${MYSQL_SERVICE_DB_NAME}
+      MYSQL_SERVICE_USER: ${MYSQL_SERVICE_USER}
+      MYSQL_SERVICE_PASSWORD: ${MYSQL_SERVICE_PASSWORD}
+      MYSQL_SERVICE_DB_PARAM: "${MYSQL_SERVICE_DB_PARAM}"
+      TZ: ${TZ}
+    ports:
+      - "${NACOS_PORT}:8848"
+      - "9848:9848"
+    volumes:
+      - ${NACOS_CONF_DIR:-nacos-conf}:/home/nacos/conf
+      - ${NACOS_LOGS_DIR:-nacos-logs}:/home/nacos/logs
+      - ${NACOS_DATA_DIR:-nacos-data}:/home/nacos/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8848/nacos/v1/console/health/readiness || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  nacos-conf:
+  nacos-logs:
+  nacos-data:

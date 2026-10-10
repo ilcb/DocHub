@@ -1,6 +1,6 @@
 ---
 title: Docker 构建 MySQL
-description: "Docker 构建 MySQL"
+description: "Docker 构建 MySQL（docker-compose 部署版本）"
 slug: "/cloud-native/docker/build-mysql"
 hide_table_of_contents: false
 keywords: ["Docker", "MySQL"]
@@ -8,66 +8,115 @@ tags: ["Docker", "MySQL", "CloudNative"]
 date: 2017-08-01
 categories: ["Docker"]
 ---
-## Docker 构建 MySQL
+## Docker 构建 MySQL（docker-compose 部署版本）
 
-## 1.查询 mysql 镜像
+MySQL 是最流行的开源关系型数据库。本文按 docker-compose 方式部署 MySQL 单节点，镜像、端口、密码、容器名、数据目录等全部集中在 `.env` 中管理。
 
-``````bash
-docker search mysql
-``````
+## 1. 宿主目录
 
-![查询镜像](img/查询镜像.jpg)
+| 宿主目录 | 用途 | 容器内用户 |
+|---------|------|-----------|
+| `/data/runtime/docker/mysql/data` | 数据库数据文件 | uid 999 |
+| `/data/runtime/docker/mysql/logs` | MySQL 运行日志 | uid 999 |
+| `/data/runtime/docker/mysql/conf` | 配置文件（my.cnf） | 只读 |
 
-## 2.拉取镜像
+> 数据目录：`.env` 中 `MYSQL_DATA_DIR` / `MYSQL_LOG_DIR` 留空则回退使用 Docker 命名卷；**配置目录 `MYSQL_CONF_DIR` 为必填**，需先按第 2 节复制配置。
 
-```bash
-docker pull mysql
-```
+## 2. 创建宿主目录并设置权限
 
-## 3.挂载配置文件
-
-将 redis 的配置文件进行挂载，以配置文件方式启动 redis 容器。(挂载：即将宿主的文件和容器内部目录相关联，相互绑定，在宿主机内修改文件的话也随之修改容器内部文件）
-
-- 挂载 mysql 的配置文件 
-```bash
-sudo mkdir -p /data/docker/mysql/{conf,data,logs}
-```
-## 3.启动容器
+bind mount 首次使用需先建目录并授权（容器内 mysql 用户 uid 999）：
 
 ```bash
-docker run -d \
-           -p 3306:3306 \
-           --privileged=true \
-           --restart=unless-stopped \
-           -v /data/docker/mysql/logs:/var/log/mysql \
-           -v /data/docker/mysql/data:/var/lib/mysql \
-           -v /data/docker/mysql/conf:/etc/mysql/conf.d \
-           -e MYSQL_ROOT_PASSWORD=root1234 \
-           --name mysql mysql
+# 1) 配置目录：首次部署把部署包 conf/ 复制到宿主根，之后直接修改宿主目录下的配置
+mkdir -p /data/runtime/docker/mysql/conf
+cp -r ./conf/. /data/runtime/docker/mysql/conf/
+
+# 2) 数据 / 日志目录
+mkdir -p /data/runtime/docker/mysql/{data,logs}
+chown -R 999:999 /data/runtime/docker/mysql
 ```
-### 参数解析
 
-> -d：表示后台启动 redis；–name 给容器命名
->
-> -p 3306:3306: 将宿主机 3306 端口与容器内 3306 端口进行映射，冒号之前为物理机端口
->
-> --privileged=true
->
-> --restart=unless-stopped: 容器重启策略
->
-> -v /data/docker/mysql/logs:/var/log/mysql: 将日志文件夹挂载到宿主机（宿主机路径:容器路径
->
-> -v /data/docker/mysql/data:/var/lib/mysql: 将 mysql 储存文件夹挂载到主机（宿主机路径:容器路径）
->
-> -v /data/docker/mysql/conf:/etc/mysql/conf.d 将配置文件夹挂载到主机（宿主机路径:容器路径）
->
-> -e MYSQL_ROOT_PASSWORD=root1234: 设置 root 用户密码
->
->  --name mysql: 设置容器名称
+## 3. 编制 .env
 
-## 4.查看运行容器状态
+在本目录创建 `.env` 文件（内容如下，按需修改）：
+
+```bash
+# ---------- MySQL 环境变量（集中管理） ----------
+MYSQL_IMAGE=mysql:8.0.36
+MYSQL_CONTAINER_NAME=mysql
+MYSQL_ROOT_PASSWORD=root1234
+MYSQL_DATABASE=myapp
+MYSQL_USER=myapp
+MYSQL_PASSWORD=myapp123
+MYSQL_PORT=3306
+# 宿主机数据目录（统一约定 /data/runtime/docker/<服务>）；留空则回退到命名卷
+MYSQL_DATA_DIR=/data/runtime/docker/mysql/data
+MYSQL_LOG_DIR=/data/runtime/docker/mysql/logs
+MYSQL_CONF_DIR=/data/runtime/docker/mysql/conf
+TZ=Asia/Shanghai
+```
+
+## 4. .env 变量说明
+
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `MYSQL_IMAGE` | 镜像版本 | `mysql:8.0.36` |
+| `MYSQL_CONTAINER_NAME` | 容器名 | `mysql` |
+| `MYSQL_PORT` | 宿主机端口 | `3306` |
+| `MYSQL_ROOT_PASSWORD` | root 密码 | `root1234` |
+| `MYSQL_DATABASE` / `MYSQL_USER` / `MYSQL_PASSWORD` | 初始化库与业务账号 | `myapp` / `myapp` / `myapp123` |
+| `MYSQL_DATA_DIR` / `MYSQL_LOG_DIR` | 数据 / 日志目录，留空回退命名卷 | `/data/runtime/docker/mysql/...` |
+| `MYSQL_CONF_DIR` | 配置目录（必填，先复制 conf/） | `/data/runtime/docker/mysql/conf` |
+| `TZ` | 时区 | `Asia/Shanghai` |
+
+## 5. docker-compose.yml
+
+在本目录创建 `docker-compose.yml`：
+
+```yaml
+services:
+  mysql:
+    image: ${MYSQL_IMAGE}
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: ${TZ}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ${MYSQL_DATA_DIR:-mysql-data}:/var/lib/mysql
+      - ${MYSQL_CONF_DIR}/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ${MYSQL_LOG_DIR:-mysql-log}:/var/log/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql-data:
+  mysql-log:
+```
+
+## 6. 启动
+
+```bash
+cd Docker构建MySQL
+docker compose up -d
+docker compose ps
+docker compose logs -f mysql
+docker compose down        # 停止并移除容器（命名卷数据保留）
+docker compose down -v     # 连数据卷一起清空
+```
+
+## 7. 验证
 
 ```bash
 docker exec -it mysql /bin/bash
 mysql -h localhost -u root -p
+# 输入 root 密码，确认连接成功
 ```

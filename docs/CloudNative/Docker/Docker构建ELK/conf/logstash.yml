@@ -1,0 +1,10 @@
+http.host: "0.0.0.0"
+# 启用定时重新加载配置
+config.reload.automatic: true
+# 定时重新加载配置周期
+config.reload.interval: 3s
+
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+xpack.monitoring.elasticsearch.username: "elastic"
+xpack.monitoring.elasticsearch.password: "${LOGSTASH_ELASTICSEARCH_PASSWORD}"

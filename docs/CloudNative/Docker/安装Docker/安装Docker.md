@@ -200,6 +200,22 @@ sh install.sh docker-25.0.2.tgz
 
 ### ![docker-status](img/docker-status.jpg)
 
+### 4.5 安装 Docker Compose 插件
+
+本目录下各中间件均采用 `docker compose` 部署，需额外安装 compose 插件：
+
+```bash
+# 下载 docker compose 插件到 /usr/local/lib/docker/cli-plugins（Docker 25 起默认目录）
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+# 验证
+docker compose version
+```
+
+> 若为旧版 docker-compose（独立二进制），可下载到 `/usr/bin/docker-compose` 后以 `docker-compose` 命令使用，但建议统一使用 `docker compose` 子命令。
+
 ### 5 总结
 
 一键安装法从实质上来说和分步骤安装方法是一样的，它将分步安装法的步骤，集中写到一个 shell 脚本，其优点是在一台新的机器上安装时，能节约时间，也不容易出错，如果想卸载 docker，一键操作也很方便。

@@ -1,0 +1,42 @@
+# ============================================================
+# RabbitMQ —— docker-compose 部署版本（独立按需启动）
+#
+# 使用带 management 插件的镜像（rabbitmq:*management），
+# 无需手动启用 rabbitmq_management。
+#
+# 常用命令（在本目录 Docker构建RabbitMQ/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f rabbitmq
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  rabbitmq:
+    image: ${RABBITMQ_IMAGE}
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    restart: unless-stopped
+    hostname: ${RABBITMQ_HOSTNAME}
+    environment:
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      TZ: ${TZ}
+    ports:
+      - "${RABBITMQ_AMQP_PORT}:5672"    # 应用访问端口
+      - "${RABBITMQ_MGMT_PORT}:15672"   # 控制台 Web 端口
+    volumes:
+      - ${RABBITMQ_DATA_DIR:-rabbitmq-data}:/var/lib/rabbitmq
+      - ${RABBITMQ_CONF_DIR:-rabbitmq-conf}:/etc/rabbitmq
+      - ${RABBITMQ_LOG_DIR:-rabbitmq-log}:/var/log/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  rabbitmq-data:
+  rabbitmq-conf:
+  rabbitmq-log:

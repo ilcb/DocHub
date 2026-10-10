@@ -1,0 +1,42 @@
+# ============================================================
+# Nginx（反向代理 / 负载均衡中间件）—— docker-compose 部署版本（独立按需启动）
+#
+# 配置统一放在宿主机 NGINX_CONF_DIR（默认 /data/runtime/docker/nginx/conf，首次部署先复制 conf/）。
+# 镜像、端口、宿主机目录等均配置在 .env 中（按需改 .env 即可）：
+#   - 镜像/容器名/端口：NGINX_IMAGE、NGINX_CONTAINER_NAME、NGINX_HTTP_PORT、NGINX_HTTPS_PORT
+#   - 配置目录：NGINX_CONF_DIR（含 nginx.conf、conf.d/，放 upstream / server 配置）
+#   - 网站目录：NGINX_HTML_DIR
+#   - 日志目录：NGINX_LOGS_DIR
+#
+# 常用命令（在本目录 Docker构建Nginx/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f nginx
+#   docker compose down
+# ============================================================
+
+services:
+  nginx:
+    image: ${NGINX_IMAGE}
+    container_name: ${NGINX_CONTAINER_NAME}
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
+    volumes:
+      - ${NGINX_CONF_DIR}/nginx.conf:/etc/nginx/nginx.conf
+      - ${NGINX_CONF_DIR}/conf.d:/etc/nginx/conf.d
+      - ${NGINX_HTML_DIR:-nginx-html}:/usr/share/nginx/html
+      - ${NGINX_LOGS_DIR:-nginx-logs}:/var/log/nginx
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    networks:
+      - nginx-network
+
+volumes:
+  nginx-html:
+  nginx-logs:
+
+networks:
+  nginx-network:
+    driver: bridge

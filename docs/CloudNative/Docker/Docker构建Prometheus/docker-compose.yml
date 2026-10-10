@@ -1,0 +1,106 @@
+# ============================================================
+# Prometheus 监控全家桶 —— docker-compose 部署版本
+# （Prometheus + Node-Exporter + Alertmanager + Grafana + cAdvisor）
+#
+# 常用命令（在本目录 Docker构建Prometheus/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  prometheus:
+    image: ${PROMETHEUS_IMAGE}
+    container_name: prometheus
+    restart: always
+    user: root
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ${PROMETHEUS_CONF_DIR}/prometheus.yml:/prometheus/config/prometheus.yml
+      - ${PROMETHEUS_DATA_DIR:-prom-data}:/prometheus/data
+      - ${PROMETHEUS_RULES_DIR:-prom-rules}:/prometheus/rules
+      - /etc/localtime:/etc/localtime:ro
+    command:
+      # 支持热更新
+      - '--web.enable-lifecycle'
+      # 保留 100 天的数据
+      - '--storage.tsdb.retention.time=100d'
+      - '--storage.tsdb.path=/prometheus'
+      - '--config.file=/prometheus/config/prometheus.yml'
+    networks:
+      - prom-network
+
+  node-exporter:
+    image: ${NODE_EXPORTER_IMAGE}
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "${NODE_EXPORTER_PORT}:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - prom-network
+
+  alertmanager:
+    image: ${ALERTMANAGER_IMAGE}
+    container_name: alertmanager
+    restart: always
+    ports:
+      - "${ALERTMANAGER_PORT}:9093"
+    volumes:
+      - ${PROMETHEUS_CONF_DIR}/alertmanager/alertmanager.yml:/alertmanager/config/alertmanager.yml
+      - ${PROMETHEUS_CONF_DIR}/alertmanager/template:/alertmanager/template
+      - /etc/localtime:/etc/localtime:ro
+    command:
+      - '--config.file=/alertmanager/config/alertmanager.yml'
+    networks:
+      - prom-network
+
+  grafana:
+    image: ${GRAFANA_IMAGE}
+    container_name: grafana
+    restart: always
+    user: root
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - ${GRAFANA_DATA_DIR:-grafana-data}:/var/lib/grafana
+      - ${GRAFANA_PLUGINS_DIR:-grafana-plugins}:/var/lib/grafana/plugins
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+      - TZ=${TZ}
+    depends_on:
+      - prometheus
+    networks:
+      - prom-network
+
+  cadvisor:
+    image: ${CADVISOR_IMAGE}
+    container_name: cadvisor
+    restart: always
+    ports:
+      - "${CADVISOR_PORT}:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - prom-network
+
+volumes:
+  prom-data:
+  prom-rules:
+  grafana-data:
+  grafana-plugins:
+
+networks:
+  prom-network:
+    driver: bridge

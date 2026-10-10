@@ -1,0 +1,40 @@
+# ============================================================
+# MinIO —— docker-compose 部署版本（独立按需启动）
+#
+# 常用命令（在本目录 Docker构建MinIO/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f minio
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  minio:
+    image: ${MINIO_IMAGE}
+    container_name: ${MINIO_CONTAINER_NAME}
+    restart: unless-stopped
+    user: root
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      TZ: ${TZ}
+    ports:
+      - "${MINIO_API_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - ${MINIO_DATA_DIR:-minio-data}:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  minio-data:

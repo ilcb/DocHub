@@ -1,0 +1,68 @@
+# ============================================================
+# RocketMQ —— docker-compose 部署版本（NameServer + Broker + Console）
+#
+# 常用命令（在本目录 Docker构建RocketMQ/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f broker
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+#
+# 注意：broker.conf 中的 brokerIP1 需改为宿主机可达 IP，否则外部客户端连不上。
+# ============================================================
+
+services:
+  namesrv:
+    image: ${ROCKETMQ_IMAGE}
+    container_name: ${ROCKETMQ_NAMESRV_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      MAX_HEAP_SIZE: 256M
+      HEAP_NEWSIZE: 128M
+      MAX_POSSIBLE_HEAP: "100000000"
+      TZ: ${TZ}
+    ports:
+      - "${ROCKETMQ_NAMESRV_PORT}:9876"
+    volumes:
+      - ${ROCKETMQ_NAMESRV_LOGS_DIR:-rmq-namesrv-logs}:/home/rocketmq/logs
+      - ${ROCKETMQ_NAMESRV_STORE_DIR:-rmq-namesrv-store}:/root/store
+    command: sh mqnamesrv
+
+  broker:
+    image: ${ROCKETMQ_IMAGE}
+    container_name: ${ROCKETMQ_BROKER_CONTAINER_NAME}
+    restart: unless-stopped
+    depends_on:
+      - namesrv
+    environment:
+      NAMESRV_ADDR: namesrv:9876
+      MAX_POSSIBLE_HEAP: "200000000"
+      MAX_HEAP_SIZE: 512M
+      HEAP_NEWSIZE: 256M
+      TZ: ${TZ}
+    ports:
+      - "${ROCKETMQ_BROKER_PORT}:10911"
+      - "${ROCKETMQ_BROKER_VIP_PORT}:10909"
+    volumes:
+      - ${ROCKETMQ_BROKER_LOGS_DIR:-rmq-broker-logs}:/root/logs
+      - ${ROCKETMQ_BROKER_STORE_DIR:-rmq-broker-store}:/root/store
+      - ${ROCKETMQ_CONF_DIR}/broker.conf:/home/rocketmq/broker.conf
+    command: sh mqbroker -c /home/rocketmq/broker.conf
+
+  console:
+    image: ${ROCKETMQ_CONSOLE_IMAGE}
+    container_name: ${ROCKETMQ_CONSOLE_CONTAINER_NAME}
+    restart: unless-stopped
+    depends_on:
+      - namesrv
+    environment:
+      JAVA_OPTS: "-Drocketmq.namesrv.addr=namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false"
+      TZ: ${TZ}
+    ports:
+      - "${ROCKETMQ_CONSOLE_PORT}:8080"
+
+volumes:
+  rmq-namesrv-logs:
+  rmq-namesrv-store:
+  rmq-broker-logs:
+  rmq-broker-store:

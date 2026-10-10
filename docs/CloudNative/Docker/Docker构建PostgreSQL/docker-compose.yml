@@ -1,0 +1,33 @@
+# ============================================================
+# PostgreSQL —— docker-compose 部署版本（独立按需启动）
+#
+# 常用命令（在本目录 Docker构建PostgreSQL/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f postgres
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: ${POSTGRES_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TZ}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ${POSTGRES_DATA_DIR:-postgres-data}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
