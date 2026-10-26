@@ -10,7 +10,7 @@ categories: ["设计模式"]
 ---
 
 ## 定义
-简单工厂模式又称静态工厂方法模式，在创建一个对象时不向客户暴露内部细节，并提供一个创建对象的通用接口。
+简单工厂模式又称静态工厂方法模式，简单工厂模式在创建对象时不向客户暴露内部细节，并提供一个创建对象的通用接口。
 它存在的目的很简单：定义一个用于创建对象的接口。
 
 ## 结构
@@ -66,16 +66,17 @@ public class SenderFactory {
     }
 }
 
-public class OperationFactoryTest {
+public class SenderFactoryTest {
     @Test
     public void test() {
-        IOperationFactory factory = new AddOperationFactory();
-        IOperation operation = factory.createOperation();
-        double total = operation.calculate(1.0, 3.0);
-        Assert.assertEquals(4.0, total, 0.0001);
+        ISender sender = new SenderFactory().create("sms");
+        sender.send();
     }
 }
+```
 
-# 结果
+## 结果
+
+```text
 this is a SmsSender
 ```

@@ -15,18 +15,37 @@ Redis 有序集合（Sorted Set）是字符串元素的集合，每个元素都�
 
 | 命令                                       | 描述                                                         | 示例                               |
 | ------------------------------------------ | ------------------------------------------------------------ | ---------------------------------- |
-| `ZADD key socre member [score member ...]` | 向有序集合添加一个或多个成员，或者更新已存在成员的分数       | `ZADD leaderboard 100 "player1"`   |
-| `ZCORE key member`                         | 返回有序集中，成员的分数值                                   | `ZSCORE leaderboard "player1"`     |
+| `ZADD key score member [score member ...]` | 向有序集合添加一个或多个成员，或者更新已存在成员的分数       | `ZADD leaderboard 100 "player1"`   |
+| `ZSCORE key member`                        | 返回有序集中，成员的分数值                                   | `ZSCORE leaderboard "player1"`     |
 | `ZCARD key`                                | 获取有序集合元素数量                                         | `ZCARD leaderboard`                |
 | `ZCOUNT key min max`                       | 计算在有序集合中指定区间分数的成员数                         | `ZCOUNT leaderboard 80 100`        |
 | `ZINCRBY key increment member`             | 有序集合中对指定成员的分数加上增量 increment                 | `ZINCRBY leaderboard 10 "player1"` |
 | `ZRANK key member`                         | 获取元素排名（升序，从 0 开始）                                | `ZRANK leaderboard "player1"`      |
-| `ZREVRANK key member`                      | 返回有序集合中指定成员的排名，有序集成员按分数值递减(从大到小)排序 |                                    |
-| `ZLEXCOUNT key min max`                    | 在有序集合中计算指定字典区间内成员数量                       |                                    |
+| `ZREVRANK key member`                      | 返回有序集合中指定成员的排名，有序集成员按分数值递减(从大到小)排序 | `ZREVRANK leaderboard "player1"`   |
+| `ZLEXCOUNT key min max`                    | 在有序集合中计算指定字典区间内成员数量                       | `ZLEXCOUNT leaderboard "-" "+"`    |
 
 ### 2.1 示例
 
-
+```bash
+# 添加成员和分数
+127.0.0.1:6379> ZADD leaderboard 100 "player1" 85 "player2"
+(integer) 2
+# 更新已有成员的分数（不新增成员时返回 0）
+127.0.0.1:6379> ZADD leaderboard 95 "player2"
+(integer) 0
+127.0.0.1:6379> ZSCORE leaderboard "player1"
+"100"
+127.0.0.1:6379> ZCARD leaderboard
+(integer) 2
+127.0.0.1:6379> ZCOUNT leaderboard 80 100
+(integer) 2
+127.0.0.1:6379> ZINCRBY leaderboard 10 "player1"
+"110"
+127.0.0.1:6379> ZRANK leaderboard "player2"
+(integer) 0
+127.0.0.1:6379> ZREVRANK leaderboard "player2"
+(integer) 1
+```
 
 ## 3. 范围查询命令
 
@@ -35,7 +54,7 @@ Redis 有序集合（Sorted Set）是字符串元素的集合，每个元素都�
 | 命令                                                         | 描述                           | 示例                                   |
 | :----------------------------------------------------------- | :----------------------------- | :------------------------------------- |
 | `ZRANGE key start stop [WITHSCORES]`                         | 按排名范围获取元素（升序）     | `ZRANGE leaderboard 0 2 WITHSCORES`    |
-| `ZRANGEBYLEX key min max [LIMIT offset count]`               | 通过字典区间返回有序集合的成员 |                                        |
+| `ZRANGEBYLEX key min max [LIMIT offset count]`               | 通过字典区间返回有序集合的成员 | `ZRANGEBYLEX leaderboard "[a" "[c"`    |
 | `ZREVRANGE key start stop [WITHSCORES]`                      | 按排名范围获取元素（降序）     | `ZREVRANGE leaderboard 0 2 WITHSCORES` |
 | `ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT offset count]` | 按分数范围获取元素（升序）     | `ZRANGEBYSCORE leaderboard 80 100`     |
 | `ZREVRANGEBYSCORE key max min [WITHSCORES] [LIMIT offset count]` | 按分数范围获取元素（降序）     | `ZREVRANGEBYSCORE leaderboard 100 80`  |
@@ -73,8 +92,8 @@ ZREVRANGE student:scores 2 3            # 第2页：第3-4名
 
 | 命令                             | 描述                                   | 说明                                |
 | :------------------------------- | :------------------------------------- | :---------------------------------- |
-| `ZREM key member [member ...]`   | 移除有序集合中的一个或多个成员         |                                     |
-| `ZREMRANGEBYLEX key min max`     | 移除有序集合中给定的字典区间的所有成员 |                                     |
+| `ZREM key member [member ...]`   | 移除有序集合中的一个或多个成员         | `ZREM leaderboard "player1"`        |
+| `ZREMRANGEBYLEX key min max`     | 移除有序集合中给定的字典区间的所有成员 | `ZREMRANGEBYLEX leaderboard "[a" "[b"` |
 | `ZREMRANGEBYRANK key start stop` | 按排名范围删除元素                     | `ZREMRANGEBYRANK leaderboard 0 2`   |
 | `ZREMRANGEBYSCORE key min max`   | 按分数范围删除元素                     | `ZREMRANGEBYSCORE leaderboard 0 60` |
 
@@ -106,8 +125,8 @@ ZREVRANGE ranking 0 -1                  # 返回: ["p1", "p2", "p3"]
 
 | 命令                                                         | 描述           | 示例                           |
 | :----------------------------------------------------------- | :------------- | :----------------------------- |
-| `ZUNIONSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE SUM` | 计算并集并存储 | ZUNIONSTORE result 2 set1 set2 |
-| `ZINTERSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE SUM` | 计算交集并存储 | ZINTERSTORE result 2 set1 set2 |
+| `ZUNIONSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE SUM]` | 计算并集并存储 | `ZUNIONSTORE result 2 set1 set2` |
+| `ZINTERSTORE destination numkeys key [key ...] [WEIGHTS weight [weight ...]] [AGGREGATE SUM]` | 计算交集并存储 | `ZINTERSTORE result 2 set1 set2` |
 
 ### 5.1 示例
 
@@ -134,15 +153,15 @@ ZREVRANGE weighted:scores 0 -1 WITHSCORES
 
 ## 6. 遍历命令
 
-安全遍历大有序集合
+安全遍历大有序集合：
 
 | 命令                                             | 描述             | 示例                            |
 | :----------------------------------------------- | :--------------- | :------------------------------ |
 | `ZSCAN key cursor [MATCH pattern] [COUNT count]` | 迭代有序集合元素 | `ZSCAN myzset 0 MATCH "user:*"` |
 
-## 6. 实际应用场景
+## 7. 实际应用场景
 
-### 6.1 排行榜系统
+### 7.1 排行榜系统
 
 使用有序集合实现各种排行榜：
 
@@ -158,8 +177,8 @@ ZREVRANGE game:leaderboard 0 9 WITHSCORES
 ZREVRANK game:leaderboard "player001"   # 返回: 2 (第3名，从0开始)
 
 # 获取某玩家周围的排名
-SET player_rank [ZREVRANK game:leaderboard "player001"]
-ZREVRANGE game:leaderboard (player_rank-2) (player_rank+2) WITHSCORES
+player_rank=$(redis-cli ZREVRANK game:leaderboard "player001")
+ZREVRANGE game:leaderboard $((player_rank-2)) $((player_rank+2)) WITHSCORES
 
 # 更新玩家分数
 ZINCRBY game:leaderboard 100 "player001" # 增加100分
@@ -172,7 +191,7 @@ RENAME game:leaderboard game:leaderboard:2024-01
 ZRANGEBYSCORE game:leaderboard 1000 1500 WITHSCORES  # 1000-1500分段
 ```
 
-### 6.2 延时队列
+### 7.2 延时队列
 
 使用时间戳作为分数实现延时任务：
 
@@ -183,7 +202,7 @@ ZADD delay:queue 1640995800 "task:send_sms:1002"       # 2022-01-01 00:10:00
 ZADD delay:queue 1640996400 "task:push_notification:1003" # 2022-01-01 00:20:00
 
 # 获取当前时间戳
-SET current_time [date +%s]
+current_time=$(date +%s)
 
 # 获取到期的任务
 ZRANGEBYSCORE delay:queue 0 $current_time
@@ -208,7 +227,7 @@ done
 
 
 
-### 6.3 时间序列数据
+### 7.3 时间序列数据
 
 使用时间戳存储时间序列数据：
 
@@ -219,7 +238,7 @@ ZADD user:1001:activity 1641081600 92   # 2022-01-02的活跃度
 ZADD user:1001:activity 1641168000 78   # 2022-01-03的活跃度
 
 # 获取最近7天的活跃度
-SET week_ago [expr [date +%s] - 604800]
+week_ago=$(( $(date +%s) - 604800 ))
 ZRANGEBYSCORE user:1001:activity $week_ago +inf WITHSCORES
 
 # 获取某时间段的平均活跃度
@@ -233,11 +252,11 @@ ZADD stock:AAPL:price 1640995260 150.30  # 1分钟后的股价
 ZRANGEBYSCORE stock:AAPL:price 1640995200 1640999999 WITHSCORES
 
 # 清理过期数据（保留最近30天）
-SET month_ago [expr [date +%s] - 2592000]
-ZREMRANG
+month_ago=$(( $(date +%s) - 2592000 ))
+ZREMRANGEBYSCORE user:1001:activity -inf $month_ago
 ```
 
-### 6.4 热门内容
+### 7.4 热门内容
 
 基于热度分数的内容排序：
 
@@ -251,13 +270,13 @@ ZADD hot:articles 89.3 "article:1003"   # 800浏览+5点赞+1评论
 # 获取热门文章
 ZREVRANGE hot:articles 0 9              # 前10热门文章
 
-# 更新文章热度
+# 更新文章热度（伪代码）
 function update_article_heat(article_id, views, likes, comments) {
     heat_score = views * 0.1 + likes * 2 + comments * 5
     ZADD hot:articles $heat_score $article_id
 }
 
-# 时间衰减热度（每小时降低5%）
+# 时间衰减热度（每小时降低5%）（伪代码）
 function decay_heat() {
     articles = ZRANGE hot:articles 0 -1 WITHSCORES
     for article, score in articles {
@@ -277,11 +296,11 @@ ZREVRANGE hot:sports:articles 0 4       # 体育类前5
 
 
 
-### 6.5 价格区间查询
+### 7.5 价格区间查询
 
 商品价格范围搜索：
 
-```plain
+```bash
 # 商品价格索引（价格作为分数）
 ZADD products:by_price 99.99 "product:1001"    # iPhone手机壳
 ZADD products:by_price 1299.00 "product:1002"  # iPad
@@ -310,7 +329,7 @@ ZREVRANGE products:by_price 0 0 WITHSCORES     # 最高价
 
 
 
-## 7. 性能优化建议
+## 8. 性能优化建议
 
 - **合理使用索引**: 有序集合内部使用跳跃表和哈希表，查询效率高
 - **避免大集合**: 单个有序集合元素数量不宜过多（建议小于 100 万）
@@ -321,8 +340,11 @@ ZREVRANGE products:by_price 0 0 WITHSCORES     # 最高价
 
 
 
-## 8. 列表 vs 其他数据类型
-  - **Sorted Set vs List**: Sorted Set 按分数排序且元素唯一，List 按插入顺序且允许重复
-  - **Sorted Set vs Set**: Sorted Set 有序且支持范围查询，Set 无序但集合运算更丰富
-  - **Sorted Set vs Hash**: Sorted Set 存储分数-元素对，Hash 存储字段-值对
-  - **使用 Sorted Set 的场景**: 排行榜、延时队列、时间序列、价格区间查询、热门内容
+## 9. Sorted Set vs 其他数据类型
+
+### 9.1 数据类型选择建议
+
+- **Sorted Set vs List**: Sorted Set 按分数排序且元素唯一，List 按插入顺序且允许重复
+- **Sorted Set vs Set**: Sorted Set 有序且支持范围查询，Set 无序但集合运算更丰富
+- **Sorted Set vs Hash**: Sorted Set 存储分数-元素对，Hash 存储字段-值对
+- **使用 Sorted Set 的场景**: 排行榜、延时队列、时间序列、价格区间查询、热门内容

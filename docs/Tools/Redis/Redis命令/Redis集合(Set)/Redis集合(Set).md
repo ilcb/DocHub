@@ -18,20 +18,39 @@ Redis 集合是字符串的无序集合，集合中的元素是唯一的，不�
 | 命令                            | 描述                                  | 示例                                |
 | ------------------------------- | ------------------------------------- | ----------------------------------- |
 | `SADD key member [member ...]`  | 向集合添加一个或多个成员              | `SADD language "chinese" "english"` |
-| `SREM key memeber [member ...]` | 移除集合中一个或多个成员              | `SREM language "chinese"`           |
+| `SREM key member [member ...]`  | 移除集合中一个或多个成员              | `SREM language "chinese"`           |
 | `SISMEMBER key member`          | 判断 member 元素是否是集合 key 的成员 | `SISMEMBER language "english"`      |
 | `SMEMBERS key`                  | 返回集合中的所有成员                  | `SMEMBERS language`                 |
 | `SCARD key`                     | 获取集合的成员数                      | `SCARD language`                    |
 | `SPOP key [count]`              | 移除并返回集合中的一个随机元素        | `SPOP language`                     |
-| `SRANDMEMBER key [count]`       | 随机获取元素（不删除）                | `SRANDOMMEMBER language`            |
+| `SRANDMEMBER key [count]`       | 随机获取元素（不删除）                | `SRANDMEMBER language`              |
 
 ### 2.1 示例
 
-
+```bash
+127.0.0.1:6379> SADD language "chinese" "english"
+(integer) 2
+# 重复元素不会被添加
+127.0.0.1:6379> SADD language "chinese"
+(integer) 0
+127.0.0.1:6379> SISMEMBER language "english"
+(integer) 1
+127.0.0.1:6379> SMEMBERS language
+1) "chinese"
+2) "english"
+127.0.0.1:6379> SCARD language
+(integer) 2
+127.0.0.1:6379> SRANDMEMBER language
+"chinese"
+127.0.0.1:6379> SREM language "chinese"
+(integer) 1
+127.0.0.1:6379> SPOP language
+"english"
+```
 
 ## 3. 集合运算命令
 
-当列表为空时，阻塞等待新元素的命令：
+对集合执行交集、并集、差集等运算的命令：
 
 | 命令                                    | 描述                                          | 示例                                  |
 | :-------------------------------------- | :-------------------------------------------- | :------------------------------------ |
@@ -44,9 +63,33 @@ Redis 集合是字符串的无序集合，集合中的元素是唯一的，不�
 
 ### 3.1 示例
 
+```bash
+127.0.0.1:6379> SADD myset1 a b c
+(integer) 3
+127.0.0.1:6379> SADD myset2 b c d
+(integer) 3
+# 交集
+127.0.0.1:6379> SINTER myset1 myset2
+1) "b"
+2) "c"
+127.0.0.1:6379> SINTERSTORE inter_set myset1 myset2
+(integer) 2
+# 并集
+127.0.0.1:6379> SUNION myset1 myset2
+1) "a"
+2) "b"
+3) "c"
+4) "d"
+127.0.0.1:6379> SUNIONSTORE union_set myset1 myset2
+(integer) 4
+# 差集
+127.0.0.1:6379> SDIFF myset1 myset2
+1) "a"
+127.0.0.1:6379> SDIFFSTORE diff_set myset1 myset2
+(integer) 1
+```
 
-
-### 4. 集合间移动
+## 4. 集合间移动
 
 在不同集合之间移动元素：
 
@@ -56,7 +99,14 @@ Redis 集合是字符串的无序集合，集合中的元素是唯一的，不�
 
 ### 4.1 示例
 
-
+```bash
+127.0.0.1:6379> SADD myset1 "element"
+(integer) 1
+127.0.0.1:6379> SMOVE myset1 myset2 "element"
+(integer) 1
+127.0.0.1:6379> SCARD myset1
+(integer) 0
+```
 
 ## 5. 集合遍历操作
 
@@ -68,7 +118,13 @@ Redis 集合是字符串的无序集合，集合中的元素是唯一的，不�
 
 ### 5.1 示例
 
-
+```bash
+127.0.0.1:6379> SADD language "english" "french" "german"
+(integer) 3
+127.0.0.1:6379> SSCAN language 0 MATCH "e*"
+1) "0"
+2) 1) "english"
+```
 
 ## 6. 实际应用场景
 
@@ -116,9 +172,10 @@ SINTER user:1001:friends user:1002:friends
 # 返回: ["user1003"] (共同好友)
 
 # 推荐好友（朋友的朋友，但不是自己的朋友）
-SUNION user:1002:friends user:1003:friends  # 朋友的朋友
-SDIFF result user:1001:friends              # 排除已有好友
-SREM result "user1001"                      # 排除自己
+SUNIONSTORE result user:1002:friends user:1003:friends  # 朋友的朋友
+SDIFFSTORE result result user:1001:friends              # 排除已有好友
+SREM result "user1001"                                  # 排除自己
+SMEMBERS result                                         # 推荐结果
 
 # 检查是否为好友
 SISMEMBER user:1001:friends "user1002"     # 返回: 1 (是好友)
@@ -220,7 +277,7 @@ SCARD weekly:visitors:2024-w3              # 一周内的唯一访问者数量
 
 ## 8. 集合 vs 其他数据类型
 
-#### 数据类型选择建议
+### 8.1 数据类型选择建议
 
 - **Set vs List**: Set 不允许重复且无序，List 允许重复且有序
 - **Set vs Hash**: Set 存储单一值，Hash 存储键值对

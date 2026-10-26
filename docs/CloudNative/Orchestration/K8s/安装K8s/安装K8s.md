@@ -11,7 +11,7 @@ categories: ["Orchestration"]
 
 # 安装 K8s
 
-记录使用 CentOS7.9 进行 k8s-1.28 版本部署，运行时环境使用 containerd，网络插件使用 calic，集群搭建完成后。搭建 NFS 共享存储环境，测试运行 pod 并挂载使用持久卷。
+记录使用 CentOS7.9 进行 k8s-1.28 版本部署，运行时环境使用 containerd，网络插件使用 calico，集群搭建完成后，搭建 NFS 共享存储环境，测试运行 pod 并挂载使用持久卷。
 
 ## 1.集群规划
 
@@ -27,7 +27,7 @@ categories: ["Orchestration"]
 
 | 名称       | 版本   |      |
 | ---------- | ------ | ---- |
-| CentOS     | 7.6    |      |
+| CentOS     | 7.9    |      |
 | Kubernetes | 1.28.2 |      |
 | Containerd | 1.6.28 |      |
 
@@ -114,7 +114,7 @@ hostnamectl set-hostname k8s-master01
 hostnamectl set-hostname k8s-node01
 ```
 
-登陆到 K8s 集群 Master 节点`192.168.0.102`上，执行以下命令
+登陆到 K8s 集群 Node 节点`192.168.0.102`上，执行以下命令
 
 ```bash
 hostnamectl set-hostname k8s-node02
@@ -527,7 +527,7 @@ kubeadm join 10.172.29.181:6443 --token 8lcscl.knznlq03nvckm78i \
 
 登陆子节点 `192.168.0.101`和`192.168.0.102`,执行以下命令:
 
-由于使用了 cri-dockerd，需要指定 cri-socket 参数用于加入集群工作节点
+由于集群使用 Containerd 作为容器运行时，kubeadm 会自动探测可用的 CRI 端点（如需显式指定，可添加 `--cri-socket unix:///run/containerd/containerd.sock` 参数），执行以下命令加入集群工作节点:
 
 ```bash
 kubeadm join 10.172.29.181:6443 --token 8lcscl.knznlq03nvckm78i \

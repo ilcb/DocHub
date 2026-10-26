@@ -1,5 +1,5 @@
 ---
-title: Redisn 内存淘汰
+title: Redis 内存淘汰
 description: "Redis 内存淘汰"
 slug: "/tools/redis/memory-expulsion"
 hide_table_of_contents: false

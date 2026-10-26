@@ -14,7 +14,7 @@ categories: ["Docker"]
 
 + Elasticsearch：开源分布式搜索引擎，提供搜集、分析、存储数据三大功能。
 + Logstash：日志的搜集、分析、过滤工具，支持大量的数据获取方式。
-+ Kibana：为 Logstash 和 ElasticSearch 提供日志分析友好的 Web 界面，帮助汇总、分析和搜索重要数据日志。
++ Kibana：为 Logstash 和 Elasticsearch 提供友好的日志分析 Web 界面，帮助汇总、分析和搜索重要数据日志。
 
 ![ELK架构](img/ELK架构.jpg)
 
@@ -71,7 +71,7 @@ ELASTIC_TRANSPORT_PORT=9300
 KIBANA_PORT=5601
 LOGSTASH_PORT=4560
 
-# ===== 密码（首次启动后执行 elasticsearch-setup-passwords 后同步更新）=====
+# ===== 密码（elastic 用户密码在首次启动时按 ELASTIC_PASSWORD 自动设置）=====
 ELASTIC_PASSWORD=elastic
 KIBANA_PASSWORD=elastic
 LOGSTASH_PASSWORD=elastic
@@ -112,7 +112,7 @@ services:
     restart: always
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"   # Xms 必须等于 Xmx
       - TZ=${TZ}
     ulimits:
       memlock:

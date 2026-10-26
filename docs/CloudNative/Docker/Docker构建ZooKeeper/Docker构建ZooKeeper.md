@@ -24,13 +24,20 @@ ZooKeeper 是分布式协调服务。本文按 docker-compose 方式部署 ZooKe
 
 > 若将 `.env` 中 `ZOOKEEPER_*_DIR` 留空，则回退使用 Docker 命名卷，无需创建宿主目录。
 
-## 2. 创建宿主目录并设置权限
+## 2. 创建宿主目录并初始化配置
 
 bind mount 首次使用需先建目录并授权（容器内 zookeeper 用户 uid 1000）：
 
 ```bash
 mkdir -p /data/runtime/docker/zookeeper/{data,conf,logs}
 chown -R 1000:1000 /data/runtime/docker/zookeeper
+```
+
+**关键一步**：`conf` 目录会整个挂载覆盖镜像内置的 `/conf`，空目录启动时入口脚本无法从 `zoo_sample.cfg` 生成 `zoo.cfg`。先用镜像自带文件初始化：
+
+```bash
+docker run --rm -v /data/runtime/docker/zookeeper/conf:/mnt \
+  --entrypoint cp zookeeper:3.9.1 -r /conf/. /mnt/
 ```
 
 ## 3. 编制 .env
@@ -59,7 +66,7 @@ TZ=Asia/Shanghai
 | `ZOOKEEPER_DATA_DIR` / `_CONF_DIR` / `_LOG_DIR` | 数据 / 配置 / 日志目录，留空回退命名卷 | `/data/runtime/docker/zookeeper/...` |
 | `TZ` | 时区 | `Asia/Shanghai` |
 
-> 如需自定义 `zoo.cfg`，可将文件放入 `${ZOOKEEPER_CONF_DIR}`（映射容器 `/conf`）。
+> 镜像入口脚本会在 `zoo.cfg` 不存在时自动由 `zoo_sample.cfg` 生成默认配置；如需自定义，编辑 `${ZOOKEEPER_CONF_DIR}/zoo.cfg` 后重启即可。
 
 ## 5. docker-compose.yml
 

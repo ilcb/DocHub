@@ -14,10 +14,10 @@ categories: ["Spring"]
 Spring 是一个轻量级的控制反转（IoC）和面向切面（AOP）的容器框架。
 
 ### SpringMVC
-Spring MVC 属于 SpringFrameWork 的 MVC 组件。Spring MVC 分离了控制器、模型对象、视图等角色。
+Spring MVC 属于 Spring Framework 的 MVC 组件。Spring MVC 分离了控制器、模型对象、视图等角色。
 
 ### MyBatis
-MyBatis 是一个基于 Java 的持久层框架，提供的持久层框架包括 SQL Maps 和 Data Access Objects（DAO），MyBatis 消除了几乎所有的 JDBC 代码和参数的手工设置以及结果集的检索。MyBatis 使用简单的 XML 或注解用于配置和原始映射，将接口和 Java 的 POJOs（ Old Java Objects，普通的 Java 对象）映射成数据库中的记录。
+MyBatis 是一个基于 Java 的持久层框架，包含 SQL Maps 和 Data Access Objects（DAO）两部分。MyBatis 大幅减少了手写 JDBC 代码、参数设置和结果集处理的工作量。MyBatis 使用简单的 XML 或注解用于配置和原始映射，将接口和 Java 的 POJOs（Plain Old Java Objects，普通的 Java 对象）映射成数据库中的记录。
 
 ## SSM 整合
 ### 配置文件
@@ -254,28 +254,28 @@ maxWait=50000
 
 ```properties
 #定义LOG输出级别
-log4j.rootLogger=INFO,Console,File  
+log4j.rootLogger=INFO,Console,File
 #定义日志输出目的地为控制台
-log4j.appender.Console=org.apache.log4j.ConsoleAppender  
-log4j.appender.Console.Target=System.out  
+log4j.appender.Console=org.apache.log4j.ConsoleAppender
+log4j.appender.Console.Target=System.out
 #可以灵活地指定日志输出格式，下面一行是指定具体的格式
-log4j.appender.Console.layout = org.apache.log4j.PatternLayout  
-log4j.appender.Console.layout.ConversionPattern=[%c] - %m%n  
+log4j.appender.Console.layout = org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.ConversionPattern=[%c] - %m%n
 
 #文件大小到达指定尺寸的时候产生一个新的文件
-log4j.appender.File = org.apache.log4j.RollingFileAppender  
+log4j.appender.File = org.apache.log4j.RollingFileAppender
 #指定输出目录
-log4j.appender.File.File = logs/ssm.log  
+log4j.appender.File.File = logs/ssm.log
 #定义文件最大大小
-log4j.appender.File.MaxFileSize = 10MB  
-# 输出所以日志，如果换成DEBUG表示输出DEBUG以上级别日志
-log4j.appender.File.Threshold = ALL  
-log4j.appender.File.layout = org.apache.log4j.PatternLayout  
-log4j.appender.File.layout.ConversionPattern =[%p] [%d{yyyy-MM-dd HH\:mm\:ss}][%c]%m%n  
+log4j.appender.File.MaxFileSize = 10MB
+# 输出所有日志，如果换成DEBUG表示输出DEBUG以上级别日志
+log4j.appender.File.Threshold = ALL
+log4j.appender.File.layout = org.apache.log4j.PatternLayout
+log4j.appender.File.layout.ConversionPattern =[%p] [%d{yyyy-MM-dd HH\:mm\:ss}][%c]%m%n
 ```
 
-###  测试
-####  新建表 user
+### 测试
+#### 新建表 user
 ```sql
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -388,7 +388,7 @@ import me.ilcb.domain.User;
 
 public interface UserMapper {
     int deleteById(Integer id);
-    
+
     int insert(User user);
 
     int insertUser(User user);
@@ -611,18 +611,19 @@ public class UserTest {
     <!-- 自动扫描controller -->
     <context:component-scan base-package="me.ilcb.controller" />
 
-    <!--自动注册DefaultAnnotationHandlerMapping,AnnotationMethodHandlerAdapter,这2个bean是spring MVC为@Controllers分发请求所必须;同时提供数据绑定@NumberFormatannotation支持，@DateTimeFormat支持，@Valid支持，读写XML的支持（JAXB），读写JSON的支持（Jackson）。处理响应ajax请求时，就使用到了对json的支持，在action写JUnit单元测试时，要从spring IOC容器中取DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter来完成测试，<mvc:annotation-driven/>就注册这两个bean。                                 
-当需要controller返回一个map的json对象时，可以为<mvc:annotation-driven/>设定<mvc:message-converters>来设定字符集和json处理类，例如：                 <mvc:annotation-driven>                                                                                     
-         <mvc:message-converters>                                                                                
-             <bean class="org.springframework.http.converter.StringHttpMessageConverter">                        
-                 <property name="supportedMediaTypes">                                                           
-                     <list>                                                                                      
-                         <value>text/;charset=UTF-8</value>                                                 
-                     </list>                                                                                     
-                 </property>                                                                                     
-             </bean>                                                                                             
-        </mvc:message-converters>                                                                                
-    </mvc:annotation-driven>-->                                                                               
+    <!--自动注册DefaultAnnotationHandlerMapping,AnnotationMethodHandlerAdapter,这2个bean是spring MVC为@Controllers分发请求所必须;同时提供数据绑定@NumberFormatannotation支持，@DateTimeFormat支持，@Valid支持，读写XML的支持（JAXB），读写JSON的支持（Jackson）。处理响应ajax请求时，就使用到了对json的支持，在action写JUnit单元测试时，要从spring IOC容器中取DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter来完成测试，<mvc:annotation-driven/>就注册这两个bean。
+当需要controller返回一个map的json对象时，可以为<mvc:annotation-driven/>设定<mvc:message-converters>来设定字符集和json处理类，例如：
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>-->
     <mvc:annotation-driven/>
 
     <!-- 定义视图解析器-->
@@ -636,7 +637,7 @@ public class UserTest {
 ### 配置 web.xml
 
 ```xml
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
         "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -704,10 +705,10 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping(value = "user/{id}")
-    public String showUsers(@PathVariable Integer id, Model Model) {
+    public String showUsers(@PathVariable Integer id, Model model) {
         User user = userService.selectById(id);
         if (user != null) {
-            Model.addAttribute(user);
+            model.addAttribute(user);
         }
         return "userList";
     }

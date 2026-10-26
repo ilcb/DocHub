@@ -1,13 +1,13 @@
 ---
-layout: _post
 title: RabbitMQ 原理
-date: 2018-12-01 
+date: 2018-12-01
 tags: 
     - AMQP
+    - 消息队列
 categories: 
-    - 工具plainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplainplain
+    - 工具
 ---
-RabbitMQ 是一个由 erlang 开发的 AMQP（Advanced Message Queue ）的开源实现
+RabbitMQ 是一个由 erlang 开发的 AMQP（Advanced Message Queue）的开源实现
 
 ## 什么是 AMQP
 AMQP（高级消息队列协议）是一个网络协议。支持符合要求的客户端应用（application）和消息中间件代理（messaging middleware broker）之间进行通信。
@@ -43,7 +43,7 @@ AMQP 是一个使用 TCP 提供可靠投递的应用层协议，AMQP 使用认�
 如果每一次访问 RabbitMQ 都建立一个 Connection，在消息量大的时候建立 TCP Connection 的开销将是巨大的，效率也较低。Channel 是在 connection 内部建立的逻辑连接，Channel 作为轻量级的 Connection 极大减少了操作系统建立 TCP connection 的开销。如果应用程序支持多线程，通常每个 thread 创建单独的 channel 进行通讯，并且这些通道不能被线程/进程共享。一个特定 Channel 上的通讯与其他 Channel 上的通讯是完全隔离的，因此每个 AMQP 方法都需要携带一个通道号，这样客户端就可以指定此方法是为哪个通道准备的。
 
 ### Exchange 
-交换机(Exchange)是用来发送消息的 AMQP 实体。交换机拿到一个消息之后将它路由给一个或零个队列。使用哪种路由算法是由交换机类型和 binding key 所决定的。:
+交换机(Exchange)是用来发送消息的 AMQP 实体。交换机拿到一个消息之后将它路由给一个或零个队列。使用哪种路由算法是由交换机类型和 binding key 所决定的。
 
 #### Routing key
 生产者在将消息发送给 Exchange 的时候，一般会指定一个 routing key，来指定这个消息的路由规则，而这个 routing key 需要与 Exchange Type 及 binding key 联合使用才能最终生效。
@@ -67,7 +67,7 @@ direct 交换机图例：
 ![direct](img/direct.png)
 
 ##### Fanout exchange（扇型交换机）
-扇型交换机（funout exchange）将消息路由给绑定到它身上的所有队列，忽略 routing key 是否和 binding key 匹配。如果 N 个队列绑定到某个扇型交换机上，当有消息发送给此扇型交换机时，交换机会将消息的拷贝分别发送给这所有的 N 个队列。扇型用来交换机处理消息的广播路由（broadcast routing）。
+扇型交换机（funout exchange）将消息路由给绑定到它身上的所有队列，忽略 routing key 是否和 binding key 匹配。如果 N 个队列绑定到某个扇型交换机上，当有消息发送给此扇型交换机时，交换机会将消息的拷贝分别发送给这所有的 N 个队列。扇型交换机用来处理消息的广播路由（broadcast routing）。
 
 fanout 交换机图例：
 
@@ -78,7 +78,7 @@ fanout 交换机图例：
 
 主题交换机模式下 binding key 配置支持 2 种格式：
 - `*`代表任意的一个词，如 key.*能够匹配到 key.one、key.two、key.three…….
-- `#`代表任意多个词，如 key.#，他能够匹配到，key.group.one 、key.group.two、key.color、key.color.name.red
+- `#`代表任意多个词，如 key.#，它能够匹配到 key.group.one、key.group.two、key.color、key.color.name.red
 
 topic 型交换机图例：
 
@@ -109,18 +109,19 @@ Queue 在声明（declare）后才能被使用。如果一个队列尚不存在�
 - Durable（消息代理重启后，队列依旧存在）
 - Exclusive（只被一个连接（connection）使用，而且当连接关闭后队列即被删除）
 - Auto-delete（当最后一个消费者退订后即被删除）
-- Arguments（一些消息代理用他来完成类似与 TTL 的某些额外功能）
+- Arguments（一些消息代理用它来完成类似于 TTL 的某些额外功能）
 
 ### Binding 
 Binding 是交换机（exchange）将消息（message）路由给队列（queue）所需遵循的规则，binding 中可以包含 routing key。Binding 信息被保存到 exchange 中的查询表中，用于 message 的分发依据。
 
 #### Binding key
-在绑定（Binding）Exchange 与 Queue 的同时，一般会指定一个 binding key；消费者将消息发送给 Exchange 时，一般会指定一个 routing key；当 binding key 与 routing key 相匹配时，消息将会被路由到对应的 Queue 中。
+在绑定（Binding）Exchange 与 Queue 的同时，一般会指定一个 binding key；生产者将消息发送给 Exchange 时，一般会指定一个 routing key；当 binding key 与 routing key 相匹配时，消息将会被路由到对应的 Queue 中。
 在绑定多个 Queue 到同一个 Exchange 的时候，这些 Binding 允许使用相同的 binding key。
 binding key 并不是在所有情况下都生效，它依赖于 Exchange Type，比如 fanout 类型的 Exchange 就会无视 binding key，而是将消息路由到所有绑定到该 Exchange 的 Queue。
 
-###Message(消息)：
-生产者传递给消费者的信息，由有效载荷(payload)和标签(label)组成，其中有效载荷即传输的数据
+### Message（消息）
+
+生产者传递给消费者的信息，由有效载荷(payload)和标签(label)组成，其中有效载荷即传输的数据。
 
 #### 消息属性和有效载荷（消息主体）
 AMQP 模型中的消息（Message）对象是带有属性（Attributes）的。例如：
@@ -135,7 +136,7 @@ AMQP 模型中的消息（Message）对象是带有属性（Attributes）的。�
 
 有些属性是被 AMQP 代理所使用的，但是大多数是开放给接收它们的应用解释器用的。有些属性是可选的也被称作消息头（headers）。他们跟 HTTP 协议的 X-Headers 很相似。消息属性需要在消息被发布的时候定义。
 
-AMQP 的消息除属性外，也含有一个有效载荷 - Payload（消息实际携带的数据），它被 AMQP 代理当作不透明的字节数组来对待。消息代理不会检查或者修改有效载荷。消息可以只包含属性而不携带有效载荷。它通常会使用类似 JSON 这种序列化的格式数据，为了节省，协议缓冲器和 MessagePack 将结构化数据序列化，以便以消息的有效载荷的形式发布。AMQP 及其同行者们通常使用"content-type" 和 "content-encoding" 这两个字段来与消息沟通进行有效载荷的辨识工作，但这仅仅是基于约定而已。
+AMQP 的消息除属性外，也含有一个有效载荷 - Payload（消息实际携带的数据），它被 AMQP 代理当作不透明的字节数组来对待。消息代理不会检查或者修改有效载荷。消息可以只包含属性而不携带有效载荷。它通常会使用类似 JSON 这种序列化的格式数据，为了节省带宽，可以使用 Protocol Buffers（协议缓冲区）和 MessagePack 将结构化数据序列化，以便以消息的有效载荷的形式发布。AMQP 及其同行者们通常使用"content-type" 和 "content-encoding" 这两个字段来与消息沟通进行有效载荷的辨识工作，但这仅仅是基于约定而已。
 
 ### Producer(生产者)
 创建消息，发布到代理服务器(Message Broker)
@@ -156,7 +157,7 @@ AMQP 的消息除属性外，也含有一个有效载荷 - Payload（消息实�
 Exchange 可以有两个状态：持久（durable）、暂存（transient），持久化的交换机会在消息代理（broker）重启后依旧存在，而暂存的交换机则不会（它们需要在代理再次上线后重新被声明）
 
 #### Message 持久化
-Message 能够以持久化的方式发布，AMQP 代理会将此消息存储在磁盘上。如果服务器重启，系统会确认收到的持久化消息未丢失。简单地将消息发送给一个持久化的交换机或者路由给一个持久化的队列，并不会使得此消息具有持久化性质：它完全取决与消息本身的持久模式（persistence mode）。将消息以持久化方式发布时，会对性能造成一定的影响（就像数据库操作一样，健壮性的存在必定造成一些性能牺牲）
+Message 能够以持久化的方式发布，AMQP 代理会将此消息存储在磁盘上。如果服务器重启，系统会确认收到的持久化消息未丢失。简单地将消息发送给一个持久化的交换机或者路由给一个持久化的队列，并不会使得此消息具有持久化性质：它完全取决于消息本身的持久模式（persistence mode）。将消息以持久化方式发布时，会对性能造成一定的影响（就像数据库操作一样，健壮性的存在必定造成一些性能牺牲）
 
 ### 消息确认
 消费者应用（Consumer applications）用来接受和处理消息的应用 - 在处理消息的时候偶尔会失败或者有时会直接崩溃掉。而且网络原因也有可能引起各种问题。这就给我们出了个难题，AMQP 代理在什么时候删除消息才是正确的？有 2 种方式：

@@ -13,11 +13,12 @@ categories: ["Harbor"]
 
 ## 1. Harbor 简介
 ### 1.1 什么是 Harbor
-    Harbor 是 VMware 公司开源的企业级 Docker Registry 项目，其目标是帮助用户迅速搭建一个企业级的 Docker Registry 服务。
 
-    Harbor以 Docker 公司开源的 Registry 为基础，提供了图形管理 UI 、基于角色的访问控制(Role Based AccessControl) 、AD/LDAP 集成、以及审计日志(Auditlogging) 等企业用户需求的功能，同时还原生支持中文。
+Harbor 是 VMware 公司开源的企业级 Docker Registry 项目，其目标是帮助用户迅速搭建一个企业级的 Docker Registry 服务。
 
-    Harbor 的每个组件都是以 Docker 容器的形式构建的，使用 docker-compose 来对它进行部署。用于部署 Harbor 的 docker-compose 模板位于 harbor/docker-compose.yml。
+Harbor 以 Docker 公司开源的 Registry 为基础，提供了图形管理 UI、基于角色的访问控制（Role Based Access Control）、AD/LDAP 集成，以及审计日志（Audit logging）等企业用户需求的功能，同时还原生支持中文。
+
+Harbor 的每个组件都是以 Docker 容器的形式构建的，使用 docker-compose 来对它进行部署。用于部署 Harbor 的 docker-compose 模板位于 harbor/docker-compose.yml。
 
 ### 1.2 Harbor 的特性
    1. 基于角色控制：用户和仓库都是基于项目进行组织的，而用户在项目中可以拥有不同的权限。
@@ -43,9 +44,7 @@ categories: ["Harbor"]
 
 Harbor 的每个组件都是以 Docker 容器的形式构建的，因此，使用 Docker Compose 来对它进行部署。
 
-总共分为 7 个容器运行，通过在 docker-compose.yml 所在目录中执行 docker-compose ps 命令来查看， 名称分别为：nginx、harbor-jobservice、harbor-ui、harbor-db、harbor-adminserver、registry、harbor-log。
-
-其中 harbor-adminserver 主要是作为一个后端的配置数据管理，并没有太多的其他功能。harbor-ui 所要操作的所有数据都通过 harbor-adminserver 这样一个数据配置管理中心来完成。
+组件以容器方式运行，不同版本的容器组成有差异（旧版本包含 harbor-ui、harbor-adminserver 等独立容器，新版本已将相关功能合并进 core 服务）。可在 docker-compose.yml 所在目录中执行 docker-compose ps 命令查看当前实际运行的容器。
 
 
 ## 2. 安装准备
@@ -68,7 +67,7 @@ https://github.com/docker/compose/releases/tag/v2.24.5
 
 下载 harbor 离线安装包，下载地址如下：
 
-```https://github.com/goharbor/harbor/releases```
+[harbor releases](https://github.com/goharbor/harbor/releases)
 
 这里我们选择安装最新版本`harbor-offline-installer-v2.9.2.tgz`。
 
@@ -105,7 +104,7 @@ tar zxvf harbor-offline-installer-v2.9.2.tgz
 
 ![解压缩](./img/jieya.jpg)
 
-### 4.2 修改 harbor.yml
+### 4.2 复制生成 harbor.yml
 
 ```bash
 cp harbor.yml.tmpl harbor.yml
@@ -123,7 +122,7 @@ vim harbor.yml
 ### 4.4 修改 harbor 文件目录权限
 
 ```bash
-chmod -R 777 harbor
+chmod -R 755 harbor
 ```
 
 ![chmod](./img/chmod_perm.jpg)
@@ -219,7 +218,7 @@ docker ps | grep harbor
 
 
 
-### 4.1 登陆 harbor
+### 4.7 登陆 Harbor
 
 ```bash
 #访问
@@ -232,7 +231,7 @@ http://127.0.0.1:8443
 
 
 
-~~~~### 4.9 设置 Harbor 开机自动启动
+### 4.8 设置 Harbor 开机自动启动
 
 1. 编辑服务文件：
 使用以下命令创建并编辑 systemd 服务文件:
@@ -248,9 +247,9 @@ After=network.target docker.service
 Requires=docker.service
 
 [Service]
-WorkingDirectory=/root/harbor
-ExecStart=/usr/local/bin/docker-compose -f /opt/harbor/docker-compose.yml up -d
-ExecStop=/usr/local/bin/docker-compose -f /opt/harbor/docker-compose.yml down
+WorkingDirectory=/home/installer/harbor
+ExecStart=/usr/local/bin/docker-compose -f /home/installer/harbor/docker-compose.yml up -d
+ExecStop=/usr/local/bin/docker-compose -f /home/installer/harbor/docker-compose.yml down
 Restart=always
 User=root
 Group=root
@@ -287,7 +286,6 @@ sudo systemctl status harbor.service
 sudo journalctl -u harbor.service
 ```
 通过这些步骤，可以将 Harbor 配置为一个 systemd 服务，使其在系统启动时自动运行。
-~~~~
 
 ## 5. Harbor 整合 Docker
 
@@ -319,7 +317,7 @@ vi daemon.json
 docker login -u admin -p Harbor12345 127.0.0.1:8443
 ```
 
-### 5.2 推送镜像
+### 5.3 推送镜像
 
 ```bash
 #1.登陆Harbor

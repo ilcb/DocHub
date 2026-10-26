@@ -27,7 +27,7 @@ categories: ["Orchestration"]
 
 ### 2.1 禁用 selinux
 
-在 K8s 集群的所有节点都执行:
+在 K3s 集群的所有节点都执行:
 
 ```bash
 # 将 SELinux 设置为 permissive 模式（相当于将其禁用）
@@ -40,7 +40,7 @@ sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
 ### 2.2 禁用防火墙
 
-在 K8s 集群的所有节点都执行:
+在 K3s 集群的所有节点都执行:
 
 ```bash
 systemctl stop firewalld
@@ -51,7 +51,7 @@ systemctl disable firewalld
 
 ### 2.3 设置 hosts
 
-在 K8s 集群的所有节点都执行:
+在 K3s 集群的所有节点都执行:
 
 ```bash
 cat >> /etc/hosts << EOF
@@ -146,7 +146,7 @@ curl -sfL \
 ![installed_master_node](img/installed_master_node.png)
 
 
-### 4.2 K3s Agent 节点安装
+### 3.2 K3s Agent 节点安装
 
 要安装其他 Agent 节点并将它们添加到集群，请使用 `K3S_URL` 和 `K3S_TOKEN` 环境变量运行安装脚本。以下示例演示了如何添加 Agent 节点：
 
@@ -176,7 +176,7 @@ curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIR
 
 ![view_node_token](img/view_node_token.png)
 
-#### 4.2.1 K3s Agent 节点 1 安装
+#### 3.2.1 K3s Agent 节点 1 安装
 
 在 `192.168.0.120` 机器上执行以下脚本:
 
@@ -190,7 +190,7 @@ curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIR
 
 
 
-#### 4.2.2 K3s Agent 节点 2 安装
+#### 3.2.2 K3s Agent 节点 2 安装
 
 在 `192.168.0.125` 机器上执行以下脚本:
 
@@ -209,8 +209,8 @@ curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIR
 /usr/local/bin/k3s-agent-uninstall.sh
 ```
 
-## 3. K3s 其他
-### 3.1 停止 K3s
+## 4. K3s 其他
+### 4.1 停止 K3s
 要停止所有 K3s 容器并重置容器状态，你可以使用 k3s-killall.sh 脚本。
 
 killall 脚本能清理容器、K3s 目录和网络组件，同时还能删除 iptables 链以及所有相关规则，但集群数据不会被删除。
@@ -220,14 +220,14 @@ killall 脚本能清理容器、K3s 目录和网络组件，同时还能删除 i
 /usr/local/bin/k3s-killall.sh
 ```
 
-### 3.1 K3s Server 卸载
+### 4.2 K3s Server 卸载
 ```bash
 # 要从 server 节点卸载 K3s，请运行：
 /usr/local/bin/k3s-uninstall.sh
 ```
 
 
-### 3.2 K3s Agent 卸载
+### 4.3 K3s Agent 卸载
 ```bash
 # 要从 agent 节点卸载 K3s，请运行：
 /usr/local/bin/k3s-agent-uninstall.sh

@@ -135,12 +135,15 @@ const sidebars: SidebarsConfig = {
     ],
     dockerSidebar: [
         "CloudNative/Docker/安装Docker/安装Docker",
+        "CloudNative/Docker/安装DockerCompose/安装DockerCompose",
+        "CloudNative/Docker/GitLab迁移/GitLab迁移",
+        "CloudNative/Docker/GitLab升级/GitLab升级",
         {
             type: 'category',
             label: 'Docker构建',
             collapsed: true,
             items: [
-                "CloudNative/Docker/Docker构建MinIO",
+                "CloudNative/Docker/Docker构建MinIO/Docker构建MinIO",
                 "CloudNative/Docker/Docker构建Redis/Docker构建Redis",
                 "CloudNative/Docker/Docker构建Kafka/Docker构建Kafka",
                 "CloudNative/Docker/Docker构建Nginx/Docker构建Nginx",
@@ -151,10 +154,11 @@ const sidebars: SidebarsConfig = {
                 "CloudNative/Docker/Docker构建ZooKeeper/Docker构建ZooKeeper",
                 "CloudNative/Docker/Docker构建MySQL/Docker构建MySQL",
                 "CloudNative/Docker/Docker构建PostgreSQL/Docker构建PostgreSQL",
-                "CloudNative/Docker/Docker构建Prometheus",
+                "CloudNative/Docker/Docker构建Prometheus/Docker构建Prometheus",
                 "CloudNative/Docker/Docker构建ELK/Docker构建ELK",
-                "CloudNative/Docker/Docker构建OnlyOffice集群",
+                "CloudNative/Docker/Docker构建OnlyOffice/Docker构建OnlyOffice集群",
                 "CloudNative/Docker/Docker构建Jenkins/Docker构建Jenkins",
+                "CloudNative/Docker/Docker构建GitLab/Docker构建GitLab",
             ],
         },
     ],
@@ -177,9 +181,10 @@ const sidebars: SidebarsConfig = {
             collapsed: false,
             items: [
                 "CloudNative/Orchestration/K3s/安装K3s/安装K3s",
+                "CloudNative/Orchestration/K3s/安装K3s离线/安装K3s离线",
             ],
         },
-        "CloudNative/Orchestration/Kuboard/集群管理工具Kuboard",
+        "CloudNative/Orchestration/Kuboard/集群管理工具Kuboard/集群管理工具Kuboard",
         "CloudNative/Orchestration/NFS存储/NFS存储"
     ],
     toolsSidebar: [

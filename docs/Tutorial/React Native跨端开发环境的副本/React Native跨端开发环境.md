@@ -59,7 +59,7 @@ React Native 低于 0.73 版本的 React Native 需要 JDK 11 版本，而低于
 
 ## 2 Android 开发环境
 ### 2.1 安装 Android Studio
-首先访问 [Addroid Studio 官网](https://developer.android.google.cn/studio?hl=zh-cn) `https://developer.android.google.cn/studio?hl=zh-cn` 下载和安装 Android Studio，本次安装版本为 `2024.3.1.14`，安装过程一路默认即可。
+首先访问 [Android Studio 官网](https://developer.android.google.cn/studio?hl=zh-cn) `https://developer.android.google.cn/studio?hl=zh-cn` 下载和安装 Android Studio，本次安装版本为 `2024.3.1.14`，安装过程一路默认即可。
 
 ![as-install](img/as-install.jpg)
 
@@ -70,7 +70,7 @@ Android Studio 默认会安装最新版本的 Android SDK。当前 React Native(
 
 你可以在 Android Studio 的 SDK Manager 中选择安装各版本的 SDK。
 
-如果设备上未安装过 Android SDK， 那么 Android Studio 首次启动会下载 Android SDK、 Android 官方模拟器等数据，按照如下补助设置即可。
+如果设备上未安装过 Android SDK， 那么 Android Studio 首次启动会下载 Android SDK、 Android 官方模拟器等数据，按照如下步骤设置即可。
 
 ![init-android](img/init-android.jpg)
 
@@ -163,7 +163,7 @@ npx @react-native-community/cli init ETrip
 ```
 
 **[可选参数]** 指定项目版本
-你可以使用 --version 参数（注意是两个杠）创建指定 React Native 版本的项目。注意版本号必须精确到两个小数点。
+你可以使用 --version 参数（注意是两个杠）创建指定 React Native 版本的项目。注意版本号必须精确到两位小数。
 
 ```bash
 npx @react-native-community/cli init ETrip --version X.XX.X
@@ -200,7 +200,7 @@ npx @react-native-community/cli init ETrip --template xx
 
 下载系统镜像:
 + Google Play Intel x86 Atom_64 System Image 前边配置 Android SDK 时已经下载，此处无需下载
-+ Pre-Release 16KB Page Size Google Play Intel x86 Atom_64 System Image 未下载过，点击下载控件
++ Pre-Release 16KB Page Size Google Play Intel x86 Atom_64 System Image 未下载过，点击下载按钮
 
 ![create-virtual-device3](img/create-virtual-device3.jpg)
 
@@ -212,7 +212,7 @@ npx @react-native-community/cli init ETrip --template xx
 
 ![create-virtual-device5](img/create-virtual-device5.jpg)
 
-译注：请不要轻易点击 Android Studio 中可能弹出的建议更新项目中某依赖项的建议，否则可能导致无法运行。
+译注：请不要轻易点击 Android Studio 中可能弹出的更新项目依赖项的建议，否则可能导致无法运行。
 
 ## 5 编译并运行 React Native 应用
 确保你先运行了模拟器或者连接了真机，然后在你的项目目录中运行 `yarn android` 或者 `yarn react-native run-android`：
@@ -226,7 +226,7 @@ yarn react-native run-android
 
 此命令会对项目的原生部分进行编译，同时在另外一个命令行中启动 Metro 服务对 js 代码进行实时打包处理（类似 webpack）。Metro 服务也可以使用 yarn start 命令单独启动。
 
-如果配置没有问题，你应该可以看到应用自动安装到设备上并开始运行。注意第一次运行时需要下载大量编译依赖，耗时可能数十分钟。此过程严重依赖稳定的代理软件，否则将频繁遭遇链接超时和断开，导致无法运行。
+如果配置没有问题，你应该可以看到应用自动安装到设备上并开始运行。注意第一次运行时需要下载大量编译依赖，耗时可能数十分钟。此过程严重依赖稳定的代理软件，否则将频繁遭遇连接超时和断开，导致无法运行。
 
 **注意** `npx react-native run-android` 只是运行应用的方式之一。你也可以在 Android Studio 中直接运行应用。
 

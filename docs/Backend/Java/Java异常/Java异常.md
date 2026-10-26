@@ -9,7 +9,7 @@ date: 2017-08-01
 categories: ["Java"]
 ---
 
-###  Java 异常体系
+### Java 异常体系
 ![exception](img/exception.jpg)
 Exception 和 Error 都继承于共同的父类 Throwable；
 
@@ -22,16 +22,16 @@ Exception 和 Error 都继承于共同的父类 Throwable；
 **ArithmeticException**(算术运算异常，一个整数除以 0 时，抛出该异常)；
 **ArrayIndexOutOfBoundsException** （下标越界异常）。
 
-**注意：Exception 和 Error 的区别：异常能被程序本身可以处理，错误是无法处理。**
+**注意：Exception 和 Error 的区别：异常可以被程序本身处理，而错误无法被处理。**
 ### Throwable 类常用方法
-- **public string getMessage()**:返回异常发生时的详细信息
-- **public string toString()**:返回异常发生时的简要描述
-- **public string getLocalizedMessage()**:返回异常对象的本地化信息。使用 Throwable 的子类覆盖这个方法，可以声称本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 getMessage()返回的结果相同
-- **public void printStackTrace()**:在控制台上打印 Throwable 对象封装的异常信息
+- **public String getMessage()**：返回异常发生时的详细信息
+- **public String toString()**：返回异常发生时的简要描述
+- **public String getLocalizedMessage()**：返回异常对象的本地化信息。使用 Throwable 的子类覆盖这个方法，可以生成本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与 getMessage()返回的结果相同
+- **public void printStackTrace()**：在控制台上打印 Throwable 对象封装的异常信息
 
 ### 异常处理总结
 - **try 块：** 用于捕获异常。其后可接零个或多个 catch 块，如果没有 catch 块，则必须跟一个 finally 块。
-- **catch 块：** 用于处理 try 捕获到的异常，可以在一个 catch 内捕获多种异常如：catch(Exception e1 || UserException e2)。
+- **catch 块：** 用于处理 try 捕获到的异常，可以在一个 catch 内同时捕获多种异常，写法为：catch (UserException | BizException e)。
 - **finally 块：** 无论是否捕获或处理异常，finally 块里的语句都会被执行。当在 try 块或 catch 块中遇到 return 语句时，finally 语句块将在方法返回之前被执行。
 
 ### 关于 finally
@@ -119,7 +119,7 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-结果:
+结果：
 > aaaa
 
 分析：System.exit 是用于结束当前正在运行中的 java 虚拟机，参数为 0 代表程序正常退出，非 0 代表程序非正常退出。
@@ -140,7 +140,7 @@ public static void main(String[] args) throws Exception {
        }
      }
    });
-   thread.setDaemon(true);//设置t1为后台线程
+   thread.setDaemon(true);//设置thread为后台线程
    thread.start();
    System.out.println("执行结束");
  }
@@ -152,11 +152,11 @@ public static void main(String[] args) throws Exception {
 分析：上述代码，后台线程 thread 中有 finally 块，但在执行前，主线程终止了，导致后台线程立即终止，故 finally 块无法执行
 
 ### 关于 return
-如果 try 语句里有 return，返回的是 try 语句块中变量值。 详细执行过程如下：
+如果 try 语句里有 return，返回的是 try 语句块中变量值。详细执行过程如下：
 1. 如果有返回值，就把返回值保存到局部变量中；
 2. 执行 jsr 指令跳到 finally 语句里执行；
 3. 执行完 finally 语句后，返回之前保存在局部变量表里的值。
-4. 如果 try，finally 语句里均有 return，忽略 try 的 return，而使用 finally 的 return.
+4. 如果 try，finally 语句里均有 return，忽略 try 的 return，而使用 finally 的 return。
 
 #### 在 try 语句内 return
 
@@ -236,7 +236,6 @@ public static int init3() {
   int num = 1;
   try {
     return num / 0;
-    throw new Exception();
   } catch (Exception e) {
     return 2;
   } finally {
@@ -251,7 +250,7 @@ public static void main(String[] args) {
 ```
 
 执行结果：
-> finally
+> finally 执行
 >
 > 2
 
@@ -275,6 +274,6 @@ public static void main(String[] args) {
 ```
 
 结果：
-> finally
+> finally 执行
 > tttt
 

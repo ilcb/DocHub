@@ -22,12 +22,19 @@ Nacos 是阿里开源的服务发现 / 配置中心。本文按 docker-compose �
 
 > 若将 `.env` 中 `NACOS_*_DIR` 留空，则回退使用 Docker 命名卷，无需创建宿主目录。
 
-## 2. 创建宿主目录并设置权限
+## 2. 创建宿主目录并初始化配置
 
-bind mount 首次使用需先建目录（容器以 root 运行，无需授权；如遇权限报错再按容器内 uid 授权）：
+bind mount 首次使用需先建目录（容器以 root 运行，无需授权）：
 
 ```bash
 mkdir -p /data/runtime/docker/nacos/{conf,logs,data}
+```
+
+**关键一步**：`conf` 目录会整个挂载覆盖镜像内置的 `/home/nacos/conf`，空目录直接启动会缺配置。先用镜像自带文件初始化：
+
+```bash
+docker run --rm -v /data/runtime/docker/nacos/conf:/mnt \
+  --entrypoint cp nacos/nacos-server:2.3.1 -r /home/nacos/conf/. /mnt/
 ```
 
 ## 3. 编制 .env
@@ -39,6 +46,8 @@ mkdir -p /data/runtime/docker/nacos/{conf,logs,data}
 NACOS_IMAGE=nacos/nacos-server:2.3.1
 NACOS_CONTAINER_NAME=nacos
 NACOS_PORT=8848
+# Nacos 2.x 客户端按 主端口+1000 推导 gRPC 端口，宿主机映射端口需同步 +1000
+NACOS_GRPC_PORT=9848
 # 是否开启鉴权（测试环境建议 false）
 NACOS_AUTH_ENABLE=false
 
@@ -51,14 +60,15 @@ NACOS_DATA_DIR=/data/runtime/docker/nacos/data
 # 默认 SPRING_DATASOURCE_PLATFORM=，走内嵌存储 standalone。
 # 如需持久化到 MySQL：
 #   1) 在 MySQL 中先建好 nacos_config 库并导入 nacos-db.sql
-#   2) 取消下行注释并填写 MYSQL_SERVICE_* 各项（MYSQL_SERVICE_HOST 填宿主机可达 IP，
-#      不能填 localhost，因为 nacos 与 mysql 是不同容器）
-# SPRING_DATASOURCE_PLATFORM=mysql
+#   2) 把 SPRING_DATASOURCE_PLATFORM 改为 mysql，并填写 MYSQL_SERVICE_* 各项
+#      （MYSQL_SERVICE_HOST 填宿主机可达 IP，不能填 localhost，
+#      因为 nacos 与 mysql 是不同容器）
+SPRING_DATASOURCE_PLATFORM=
 MYSQL_SERVICE_HOST=127.0.0.1
 MYSQL_SERVICE_PORT=3306
 MYSQL_SERVICE_DB_NAME=nacos_config
 MYSQL_SERVICE_USER=root
-MYSQL_SERVICE_PASSWORD=ytsl@2021
+MYSQL_SERVICE_PASSWORD=change_me
 MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
 TZ=Asia/Shanghai
 ```
@@ -69,8 +79,10 @@ TZ=Asia/Shanghai
 |------|------|------|
 | `NACOS_IMAGE` | 镜像版本 | `nacos/nacos-server:2.3.1` |
 | `NACOS_CONTAINER_NAME` | 容器名 | `nacos` |
-| `NACOS_PORT` | 主端口（gRPC 9848 固定映射） | `8848` |
+| `NACOS_PORT` | 主端口 | `8848` |
+| `NACOS_GRPC_PORT` | gRPC 端口映射，需与 `NACOS_PORT+1000` 一致 | `9848` |
 | `NACOS_AUTH_ENABLE` | 是否开启鉴权（测试环境建议 false） | `false` |
+| `SPRING_DATASOURCE_PLATFORM` | 留空=内嵌存储；`mysql`=MySQL 持久化 | （空）/ `mysql` |
 | `NACOS_CONF_DIR` / `_LOGS_DIR` / `_DATA_DIR` | 配置 / 日志 / 数据目录，留空回退命名卷 | `/data/runtime/docker/nacos/...` |
 | `TZ` | 时区 | `Asia/Shanghai` |
 
@@ -101,7 +113,7 @@ services:
       TZ: ${TZ}
     ports:
       - "${NACOS_PORT}:8848"
-      - "9848:9848"
+      - "${NACOS_GRPC_PORT}:9848"
     volumes:
       - ${NACOS_CONF_DIR:-nacos-conf}:/home/nacos/conf
       - ${NACOS_LOGS_DIR:-nacos-logs}:/home/nacos/logs
@@ -131,7 +143,7 @@ docker compose down -v     # 连数据卷一起清空
 
 ## 7. 验证与登录
 
-浏览器访问: `http://<服务器IP>:8848/nacos`，默认账号密码 `nacos/nacos`（如开启鉴权）。
+浏览器访问：`http://<服务器IP>:8848/nacos`，默认账号密码 `nacos/nacos`（如开启鉴权）。
 
 ![nacos-mainpage.jpg](img/nacos-mainpage.jpg)
 

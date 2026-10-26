@@ -22,7 +22,11 @@ services:
     restart: unless-stopped
     ports:
       - "${NGINX_HTTP_PORT}:80"
+      # 443 已映射；如需 HTTPS，在 conf.d 中添加 ssl server 配置并自行挂载证书目录
       - "${NGINX_HTTPS_PORT}:443"
+    # Linux 宿主机上把 host.docker.internal 解析到宿主网关（Docker Desktop 自带）
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ${NGINX_CONF_DIR}/nginx.conf:/etc/nginx/nginx.conf
       - ${NGINX_CONF_DIR}/conf.d:/etc/nginx/conf.d

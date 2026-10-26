@@ -26,11 +26,11 @@ categories: ["Java"]
 ### File
 `java.io.File` 是文件和目录路径名的抽象表示形式，`File` 能新建、删除、重命名文件和目录，但 `File` 不能访问文件内容本身。 如果需要访问文件内容本身，则需要使用输入/输出流。
 
-`File` 对象可以作为参数传递给流的构造函数;
+`File` 对象可以作为参数传递给流的构造函数；
 
 `File` 的静态属性 `String separator` 存储了当前系统的路径分隔符，在 UNIX 中，此字段为`/`，在 Windows 中，为`\\`；
 
-`File` 方法:
+`File` 方法：
 
 | 访问文件名                       | 文件检测                  | 获取文件信息              | 文件操作                    | 目录操作               |
 | --------------------------- | --------------------- | ------------------- | ----------------------- | ------------------ |
@@ -42,7 +42,7 @@ categories: ["Java"]
 | boolean renameTo(File file) |                       |                     |                         |                    |
 
 ### 流
-流是一组有顺序的，有起点和终点的字节集合，是对数据传输的总称或抽象。即数据在两设备间的传输称为流，**流的本质是数据传输，根据数据传输特性将流抽象为各种类，方便更直观的进行数据操作**
+流是一组有顺序的，有起点和终点的字节集合，是对数据传输的总称或抽象。即数据在两设备间的传输称为流，流的本质是数据传输，根据数据传输特性将流抽象为各种类，方便更直观地进行数据操作。
 
 #### 流的分类
 根据处理数据类型的不同分为：字符流和字节流
@@ -58,13 +58,12 @@ categories: ["Java"]
 | Reader | Writer |
 
 - 字节流和字符流的区别： 
-  - 读写单位不同：字节流以 byte（8bit）为单位，字符流以 char（16bit 为单位，根据码表映射字符，一次可能读多个字节。
+  - 读写单位不同：字节流以 byte（8bit）为单位，字符流以 char（16bit）为单位，根据码表映射字符，一次可能读多个字节。
   - 处理对象不同：字节流能处理所有类型的数据（如图片、avi 等），而字符流只能处理字符类型的数据。
 
   结论：只要是处理纯文本数据，就优先考虑使用字符流。 除此之外都使用字节流。
 
-- 根据数据流向不同分为：输入流和输出流
-  对输入流只能进行读操作，对输出流只能进行写操作，程序中需要根据待传输数据的不同特性而使用不同的流
+根据数据流向不同分为：输入流和输出流。对输入流只能进行读操作，对输出流只能进行写操作，程序中需要根据待传输数据的不同特性而使用不同的流。
 
 #### IO 流体系
 
@@ -85,7 +84,7 @@ categories: ["Java"]
 
 #### InputStream & Reader
 - InputStream 和 Reader 是所有输入流的基类。
-- InputStream（典型实现：FileInputStream
+- InputStream（典型实现：FileInputStream）
   - int read()
   - int read(byte[] b)
   - int read(byte[] b, int off, int len)
@@ -93,7 +92,7 @@ categories: ["Java"]
   - int read()
   - int read(char [] c)
   - int read(char [] c, int off, int len)
-- **程序中打开的文件 IO 资源不属于内存里的资源，垃圾回收机制无法回收该资源，所以应该显式关闭文件 IO 资源**。
+- 程序中打开的文件 IO 资源不属于内存里的资源，垃圾回收机制无法回收该资源，所以应该显式关闭文件 IO 资源。
 
 #### OutputStream & Writer
 - OutputStream 和 Writer 也非常相似：
@@ -146,8 +145,8 @@ public class FileInput {
  根据数据操作单位可以把缓冲流分为：
   - BufferedInputStream 和 BufferedOutputStream
   - BufferedReader 和 BufferedWriter
-      缓冲流要"套接"在相应的节点流之上，对读写的数据提供了缓冲的功能，提高了读写的效率，同时增加了一些新的方法
-      对于输出的缓冲流，写出的数据会先在内存中缓存，使用 flush()将会使内存中的数据立刻写出
+
+缓冲流要"套接"在相应的节点流之上，对读写的数据提供了缓冲的功能，提高了读写的效率，同时增加了一些新的方法；对于输出的缓冲流，写出的数据会先在内存中缓存，使用 flush()将会使内存中的数据立刻写出。
 
 ```java
 import java.io.*;
@@ -190,7 +189,8 @@ public class BufferTest {
   转换流提供了在字节流和字符流之间的转换，java 有 2 个转换流：
 - InputStreamReader
 - OutputStreamWriter
-   字节流中的数据都是字符时，转成字符流操作更高效。
+
+当字节流中的数据都是字符时，转成字符流操作更高效。
 
 ##### InputStreamReader
  用于将字节流中读取到的字节按指定字符集解码成字符。需要和 InputStream"套接"。
@@ -204,8 +204,8 @@ public class BufferTest {
  ISO8859-1：用一个字节的 8 位表示
  GB2312：中国的中文编码表
  GBK：中国的中文编码表升级，融合了更多的中文文字符号
- Unicode：所有文字都用两个字节来表示,Java 语言使用的就是 unicode
- UTF-8：最多用三个字节来表示一个字符
+ Unicode：所有文字都用两个字节来表示，Java 语言使用的就是 unicode
+ UTF-8：一种变长编码，一个字符最少 1 字节、最多 4 字节
  编码：字符串->字节数组
  解码：字节数->字符串
 
@@ -245,8 +245,8 @@ public class StreamReader {
  System.in 的类型是 InputStream
  System.out 的类型是 PrintStream，其是 OutputStream 的子类 FilterOutputStream 的子类
  通过 System 类的 setIn，setOut 方法对默认设备进行改变。
- public static void **setIn**([InputStream] in)
- public static void **setOut**([PrintStream] out)
+ public static void setIn(InputStream in)
+ public static void setOut(PrintStream out)
 
 ```java
 import java.io.BufferedReader;
@@ -280,7 +280,7 @@ public class SystemInOut {
 ```
 
 #### 打印流
- 在整个 IO 包中，打印流是输出信息最方便的类。
+ 在整个 IO 包中，打印流封装了 print/println 等输出方法，使用最为便捷。
  PrintStream(字节打印流)和 PrintWriter(字符打印流)提供了一系列重载的 print 和 println 方法，用于多种数据类型的输出
  PrintStream 和 PrintWriter 的输出不会抛出异常
  PrintStream 和 PrintWriter 有自动 flush 功能
@@ -349,7 +349,7 @@ public class DataInOut {
 ```
 
 #### 对象流
-ObjectInputStream 和 OjbectOutputSteam：用于存储和读取对象的处理流。可以把 java 对象写入到数据源中，也能把对象从数据源中还原回来。
+ObjectInputStream 和 ObjectOutputStream：用于存储和读取对象的处理流。可以把 java 对象写入到数据源中，也能把对象从数据源中还原回来。
 序列化(Serialize)：用 ObjectOutputStream 类将一个 Java 对象写入 IO 流中
 反序列化(Deserialize)：用 ObjectInputStream 类从 IO 流中恢复该 Java 对象
 ObjectOutputStream 和 ObjectInputStream 不能序列化 static 和 transient 修饰的成员变量
@@ -357,14 +357,14 @@ ObjectOutputStream 和 ObjectInputStream 不能序列化 static 和 transient �
 ##### 对象的序列化
 对象序列化机制允许把内存中的 Java 对象转换成平台无关的二进制流，把二进制流持久地保存在磁盘上，或通过网络将这种二进制流传输到另一个网络节点。当其它程序获取了这种二进制流，就可以恢复成原来的 Java 对象
 序列化可将任何实现了 Serializable 接口的对象转化为字节数据，使其在保存和传输时可被还原
-序列化是 RMI（Remote Method Invoke – 远程方法调用）过程的参数和返回值都必须实现的机制，而 RMI 是 JavaEE 的基础。因此序列化机制是 JavaEE 平台的基础
+序列化是 RMI（Remote Method Invocation – 远程方法调用）过程的参数和返回值都必须实现的机制，而 RMI 是 JavaEE 的基础。因此序列化机制是 JavaEE 平台的基础
 如果需要让某个对象支持序列化机制，则必须让其类是可序列化的，为了让某个类是可序列化的，该类必须实现如下两个接口之一：
   Serializable
   Externalizable
 凡是实现 Serializable 接口的类都有一个表示序列化版本标识符的静态变量：
   private static final long serialVersionUID;
   serialVersionUID 用来表明类的不同版本间的兼容性
-  如果类没有显示定义这个静态变量，它的值是 Java 运行时环境根据类的内部细节自动生成的。若类的源代码作了修改，serialVersionUID 可能发生变化。
+  如果类没有显式定义这个静态变量，它的值是 Java 运行时环境根据类的内部细节自动生成的。若类的源代码作了修改，serialVersionUID 可能发生变化。
 定义 serialVersionUID 的用途
   希望类的不同版本对序列化兼容，因此需确保类的不同版本具有相同的 serialVersionUID
   不希望类的不同版本对序列化兼容，因此需确保类的不同版本具有不同的 serialVersionUID
@@ -372,11 +372,11 @@ ObjectOutputStream 和 ObjectInputStream 不能序列化 static 和 transient �
 ##### 使用对象流序列化对象
 若某个类实现了 Serializable 接口，该类的对象就是可序列化的：
   创建一个 ObjectOutputStream
-  调用 ObjectOutputStream 对象的 writeObject(对象) 方法输出可序列化对象。注意写出一次，操作 flush()
+  调用 ObjectOutputStream 对象的 writeObject(对象) 方法输出可序列化对象。注意每次写出后调用 flush()
 反序列化
   创建一个 ObjectInputStream
   调用 readObject() 方法读取流中的对象
-  **强调：如果某个类的字段不是基本数据类型或 String 类型，而是另一个引用类型，那么这个引用类型必须是可序列化的，否则拥有该类型的 Field 的类也不能序列化**
+  如果某个类的字段不是基本数据类型或 String 类型，而是另一个引用类型，那么这个引用类型必须是可序列化的，否则拥有该类型的 Field 的类也不能序列化
 
 ```java
 import java.io.Serializable;
@@ -432,7 +432,7 @@ public class ObjectReadWrite {
 
             inputStream = new ObjectInputStream(new FileInputStream("E:" + File.separator + "user.txt"));
             User user1 = (User) inputStream.readObject();
-            System.out.println(user1);;
+            System.out.println(user1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -497,19 +497,3 @@ public class RandomAccessFileTest {
     }
 }
 ```
-
-### 总结
-#### 字节流->缓冲流
-  输入流：InputStream->FileInputStream->BufferedInputStream
-  输出流：OutputStream->FileOutputStream->BufferedOutputStream
-#### 字符流->缓冲流
-  输入流：Reader->FileReader->BufferedReader
-  输出流：Writer->FileWriter->BufferedWriter
-#### 转换流
-  InputSteamReader 和 OutputStreamWriter
-#### 对象流
-  ObjectInputStream 和 ObjectOutputStream
-    序列化
-    反序列化
-
-#### 随机存取文件 RandomAccessFile

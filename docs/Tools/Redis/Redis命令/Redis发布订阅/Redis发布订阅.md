@@ -10,17 +10,18 @@ categories: ["Redis"]
 ---
 
 ## Redis 发布订阅(pub/sub)
- Redis 发布订阅(pub/sub)是一种消息通信模式：发送者(pub)发送消息，订阅者(sub)接收消息。
- Redis 客户端可以订阅任意数量的频道。
-​下图展示了频道 channel1 ， 以及订阅这个频道的三个客户端 —— client2 、 client5 和 client1 之间的关系：
-​![pubsub1](img/pubsub1.png)
-​当有新消息通过 PUBLISH 命令发送给频道 channel1 时， 这个消息就会被发送给订阅它的三个客户端：
-​![pubsub2](img/pubsub2.png)
+Redis 发布订阅(pub/sub)是一种消息通信模式：发送者(pub)发送消息，订阅者(sub)接收消息。
+Redis 客户端可以订阅任意数量的频道。
+下图展示了频道 channel1 ， 以及订阅这个频道的三个客户端 —— client2 、 client5 和 client1 之间的关系：
+![pubsub1](img/pubsub1.png)
+当有新消息通过 PUBLISH 命令发送给频道 channel1 时， 这个消息就会被发送给订阅它的三个客户端：
+![pubsub2](img/pubsub2.png)
 
 ## 1.基本命令
 
-| `SUBSCRIBE`    | `SUBSCRIBE channel [channel ...]`             | 订阅一个或多个频道 | 订阅确认信息         |
+| 命令            | 语法                                          | 功能               | 返回信息             |
 | -------------- | --------------------------------------------- | ------------------ | -------------------- |
+| `SUBSCRIBE`    | `SUBSCRIBE channel [channel ...]`             | 订阅一个或多个频道 | 订阅确认信息         |
 | `UNSUBSCRIBE`  | `UNSUBSCRIBE [channel [channel ...]]`         | 取消订阅频道       | 取消订阅确认         |
 | `PUBLISH`      | `PUBLISH channel message`                     | 向频道发布消息     | 接收消息的订阅者数量 |
 | `PSUBSCRIBE`   | `PSUBSCRIBE pattern [pattern ...]`            | 订阅匹配模式的频道 | 订阅确认信息         |

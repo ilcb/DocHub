@@ -50,6 +50,7 @@ services:
     command: sh mqbroker -c /home/rocketmq/broker.conf
 
   console:
+    # rocketmq-dashboard（原 console-ng 的官方后继），环境变量属性名兼容
     image: ${ROCKETMQ_CONSOLE_IMAGE}
     container_name: ${ROCKETMQ_CONSOLE_CONTAINER_NAME}
     restart: unless-stopped

@@ -22,12 +22,29 @@ Redis 列表是简单的字符串列表，按照插入顺序排序。你可以�
 | `LPOP key`                        | 从左端（头部）弹出元素         | `LPOP book_list`                            |
 | `RPOP key`                        | 从右端（尾部）弹出元素         | `RPOP book_list`                            |
 | `LLEN key`                        | 获取列表长度                   | `LLEN book_list`                            |
-| `LINDEX key index`                | 获取指定索引的元素             | `LINDEX book_list 1                         |
+| `LINDEX key index`                | 获取指定索引的元素             | `LINDEX book_list 1`                        |
 | `LSET key index element`          | 设置指定索引的元素值           | `LSET book_list 1 "数据库程序设计"`         |
 
 ### 2.1 示例
 
-
+```bash
+127.0.0.1:6379> LPUSH book_list "Java设计模式" "Java并发编程"
+(integer) 2
+127.0.0.1:6379> RPUSH book_list "Python程序设计"
+(integer) 3
+127.0.0.1:6379> LPUSHX book_list "Python Cookbook"
+(integer) 4
+127.0.0.1:6379> LLEN book_list
+(integer) 4
+127.0.0.1:6379> LINDEX book_list 1
+"Java设计模式"
+127.0.0.1:6379> LSET book_list 1 "数据库程序设计"
+OK
+127.0.0.1:6379> LPOP book_list
+"Python Cookbook"
+127.0.0.1:6379> RPOP book_list
+"Python程序设计"
+```
 
 ## 3. 阻塞操作命令
 
@@ -41,25 +58,48 @@ Redis 列表是简单的字符串列表，按照插入顺序排序。你可以�
 
 ### 3.1 示例
 
+```bash
+# 列表为空时阻塞等待，直到新元素到达
+127.0.0.1:6379> BLPOP book_list 1000
 
+# 阻塞式右端弹出
+127.0.0.1:6379> BRPOP book_list 1000
+
+# 弹出并推入另一个列表（备份）
+127.0.0.1:6379> BRPOPLPUSH book_list book_list1 500
+```
 
 ## 4. 范围操作命令
 
-当哈希字段存储数值时，可以进行原子性的数值操作：
+对列表指定范围内的元素进行操作：
 
 | 命令                                     | 描述                                                         | 说明                                    |
 | :--------------------------------------- | :----------------------------------------------------------- | :-------------------------------------- |
 | `LRANGE key start stop`                  | 获取指定范围的元素                                           | `LRANGE book_list 0 2`                  |
-| `LTRIM key start stop`                   | 对一个列表进行修剪(trim)，<br/>让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除 | `LRANGE book_list 0 1`                  |
-| `LINSERT key BEFORE|AFTER pivot element` | 在指定元素前/后插入                                          | `LINSERT book_list BEFORE 1 "数据结构"` |
+| `LTRIM key start stop`                   | 对一个列表进行修剪(trim)，<br/>让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除 | `LTRIM book_list 0 1`                   |
+| `LINSERT key BEFORE|AFTER pivot element` | 在指定元素前/后插入                                          | `LINSERT book_list BEFORE "Python程序设计" "数据结构"` |
 | `LREM key count element`                 | 删除指定数量的元素                                           | `LREM book_list 1 "数据结构"`           |
 
 ### 4.1 示例
 
+```bash
+# 获取前 3 个元素
+127.0.0.1:6379> LRANGE book_list 0 2
+1) "Java并发编程"
+2) "Java设计模式"
+3) "数据库程序设计"
 
+# 修剪列表，只保留前两个元素
+127.0.0.1:6379> LTRIM book_list 0 1
 
+# 在指定元素前插入
+127.0.0.1:6379> LINSERT book_list BEFORE "Java设计模式" "C++ Primer"
+(integer) 3
 
-
+# 删除指定数量的元素
+127.0.0.1:6379> LREM book_list 1 "Java并发编程"
+(integer) 1
+```
 ## 5. 列表间操作
 
 在不同列表之间移动元素：
@@ -70,7 +110,13 @@ Redis 列表是简单的字符串列表，按照插入顺序排序。你可以�
 
 ### 5.1 示例
 
-
+```bash
+127.0.0.1:6379> RPUSH book_list "C++ Primer"
+(integer) 1
+# 把 book_list 的最后一个元素移动到 book_list1
+127.0.0.1:6379> RPOPLPUSH book_list book_list1
+"C++ Primer"
+```
 
 ## 6. 实际应用场景
 
@@ -87,10 +133,10 @@ LPUSH order_queue "{\"id\": 1, \"buyer\": \"李四\", \"price\": \"500\"}"
 # 阻塞等待消息
 BRPOP order_queue 30               
 
-# 可靠队列（结单队列）
+# 可靠队列（弹出前先转移到备份队列）
 BRPOPLPUSH order_queue completed_queue 30
 
-# 处理完成后
+# 处理完成后，按消息内容从备份队列移除该条记录
 LREM completed_queue 1 "completed"
 
 # 失败重试
@@ -162,7 +208,7 @@ LLEN task:failed                     # 失败任务数
 
 ## 8. 列表 vs 其他数据类型
 
-#### 数据类型选择建议
+### 8.1 数据类型选择建议
 
 - **List vs Set**: List 允许重复元素且有序，Set 不允许重复且无序
 - **List vs Sorted Set**: List 按插入顺序排序，Sorted Set 按分数排序

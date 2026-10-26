@@ -19,8 +19,8 @@ categories: ["设计模式"]
 所谓耦合，就是两个实体的行为的某种强关联。而将它们的强关联去掉，就是耦合的解脱，或称脱耦。在这里，脱耦是指将抽象化和实现化之间的耦合解脱开，或者说是将它们之间的强关联改换成弱关联。
 将两个角色之间的继承关系改为聚合关系，就是将它们之间的强关联改换成为弱关联。因此，桥梁模式中的所谓脱耦，就是指在一个软件系统的抽象化和实现化之间使用组合/聚合关系而不是继承关系，从而使两者可以相对独立地变化。这就是桥梁模式的用意
 ## 适用性
-+ 不希望在抽象和实现部分之间有一个固定的邦定关系，如在程序的运行时刻实现部分应该可以被选择或者切换。
-+ 类的抽象以及他的视像都可以通过生成子类的方法加以扩充，这时 bridge 模式使你可以对不同的抽象接口和实现部分进行组合，并对他们进行扩充。
++ 不希望在抽象和实现部分之间有一个固定的绑定关系，如在程序的运行时刻实现部分应该可以被选择或者切换。
++ 类的抽象以及它的实现都可以通过生成子类的方法加以扩充，这时 bridge 模式使你可以对不同的抽象接口和实现部分进行组合，并对他们进行扩充。
 + 对一个抽象的实现部分的修改应该对客户不产生影响，即客户的代码不需要重新编译。
 + 想对客户完全隐藏抽象的实现部分。
 + 想在多个实现间共享实现，但同时要求客户并不知道这一点。
@@ -103,7 +103,10 @@ public class BridgeTest {
     }
 }
 
+```
 ## 结果
+
+```text
 具体实现A
 具体实现B
 ```
@@ -115,7 +118,7 @@ Bridge 模式将继承关系转换为组合关系，从而降低了系统间的�
 代码实现：
 ```java
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  * Abstraction抽象类的接口
  */
 public abstract class BrushPenAbstraction {
@@ -129,7 +132,7 @@ public abstract class BrushPenAbstraction {
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  * RefinedAbstraction
  * 扩充由Abstraction;大毛笔
  */
@@ -142,7 +145,7 @@ public class BigBrushPenRefined extends BrushPenAbstraction{
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  * RefinedAbstraction
  * 扩充由Abstraction;中毛笔
  */
@@ -155,7 +158,7 @@ public class MiddleBrushPenRefined extends BrushPenAbstraction{
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  * RefinedAbstraction
  * 扩充由Abstraction;小毛笔
  */
@@ -168,7 +171,7 @@ public class SmallBrushPenRefined extends BrushPenAbstraction {
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  * 实现类接口(Implementor)
  */
 public class ImplementorColor {
@@ -188,10 +191,10 @@ public class ImplementorColor {
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  */
-public class OncreteImplementorRed extends ImplementorColor {
-    public OncreteImplementorRed(){
+public class ConcreteImplementorRed extends ImplementorColor {
+    public ConcreteImplementorRed(){
        this.value = "red";
     }
     public void bepaint(){
@@ -200,28 +203,28 @@ public class OncreteImplementorRed extends ImplementorColor {
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  */
-public class OncreteImplementorGreen extends ImplementorColor {
-    public OncreteImplementorGreen(){
+public class ConcreteImplementorGreen extends ImplementorColor {
+    public ConcreteImplementorGreen(){
        this.value = "green";
     }
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  */
-public class OncreteImplementorBlue extends ImplementorColor {
-    public OncreteImplementorBlue(){
+public class ConcreteImplementorBlue extends ImplementorColor {
+    public ConcreteImplementorBlue(){
        this.value = "blue";
     }
 }
 
 /**
- * Created by Jasper on 2016/5/12.
+ * Created on 2016/5/12.
  */
-public class OncreteImplementorWhite extends ImplementorColor {
-    public OncreteImplementorWhite(){
+public class ConcreteImplementorWhite extends ImplementorColor {
+    public ConcreteImplementorWhite(){
        this.value = "white";
     }
 }
@@ -229,20 +232,23 @@ public class OncreteImplementorWhite extends ImplementorColor {
 public class BrushTest{
     public static void main(String[] args){
         BrushPenAbstraction brush = new BigBrushPenRefined();
-        brush.setImplementorColor(new OncreteImplementorBlue());;
+        brush.setImplementorColor(new ConcreteImplementorBlue());
         brush.operationDraw();
     }
 }
+```
 
 运行结果：
+
+```text
 big brush use: blue draw!
 ```
 
 ## 总结
 ### 优点
-+ 分离接口及其实现部分，一个实现未必不变地绑定在一个接口上。抽象类的实现可以在运行时刻进行配置，一个对象甚至可以在运行时刻改变它的实现。将 Abstraction 与 Implementor 分离有助于降低对实现部分编译时刻的依赖性，当改变一个实现类时，并不需要重新编译 Abstraction 类和它的客户程序。为了保证一个类库的不同版本之间的二进制兼容性，一定要有这个性质。另外，接口与实现分离有助于分层，从而产生更好的结构化系统，系统的高层部分仅需知道 Abstraction 和 Implementor 即可。
++ 分离接口及其实现部分，实现不必固定绑定于某一个接口。抽象类的实现可以在运行时刻进行配置，一个对象甚至可以在运行时刻改变它的实现。将 Abstraction 与 Implementor 分离有助于降低对实现部分编译时刻的依赖性，当改变一个实现类时，并不需要重新编译 Abstraction 类和它的客户程序。为了保证一个类库的不同版本之间的二进制兼容性，一定要有这个性质。另外，接口与实现分离有助于分层，从而产生更好的结构化系统，系统的高层部分仅需知道 Abstraction 和 Implementor 即可。
 + 提高可扩充性，可以独立地对 Abstraction 和 Implementor 层次结构进行扩充。
-+ )实现细节对客户透明，可以对客户隐藏实现细节，例如共享 Implementor 对象以及相应的引用计数机制（如果有的话）。
++ 实现细节对客户透明，可以对客户隐藏实现细节，例如共享 Implementor 对象以及相应的引用计数机制（如果有的话）。
 ### 缺点
 + 桥接模式的引入会增加系统的理解与设计难度，由于聚合关联关系建立在抽象层，要求开发者针对抽象进行设计与编程。
 + 桥接模式要求正确识别出系统中两个独立变化的维度，因此其使用范围具有一定的局限性。

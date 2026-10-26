@@ -11,9 +11,7 @@ categories: ["Docker"]
 
 ## Docker 构建 MinIO（docker-compose 部署版本）
 
-MinIO 是世界上最快的对象存储服务器，在标准硬件上，读写速度分别为 183GB/s 和 171GB/s。对象存储可以作为主要存储层，用于 Spark、Presto、TensorFlow、H2O.ai 以及替代产品等各种工作负载，用于 Hadoop HDFS。
-
-MinIO 是一种高性能的分布式对象存储系统，它是软件定义的，可在行业标准硬件上运行，并且在 Apache 2.0 许可下，百分百开放源代码。
+MinIO 是一个高性能的分布式对象存储系统，软件定义架构，可在行业标准硬件上运行，在 Apache 2.0 许可下完全开源。读写速度可达 183GB/s 和 171GB/s（标准硬件），可作为 Spark、Presto、TensorFlow、H2O.ai 等工作负载的主要存储层，也可用于替代 Hadoop HDFS。
 
 文档地址：https://docs.min.io/cn/
 

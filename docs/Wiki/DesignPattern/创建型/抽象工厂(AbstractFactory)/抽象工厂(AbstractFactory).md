@@ -14,7 +14,7 @@ categories: ["设计模式"]
 
 抽象工厂模式用到了工厂方法模式来创建单一对象，AbstractFactory 中的 createProductA() 和 createProductB() 方法都是让子类来实现，这两个方法单独来看就是在创建一个对象，这符合工厂方法模式的定义。
 
-从高层次来看，抽象工厂使用了组合，即 Cilent 组合了 AbstractFactory，而工厂方法模式使用了继承。
+从高层次来看，抽象工厂使用了组合，即 Client 组合了 AbstractFactory，而工厂方法模式使用了继承。
 
 ## 结构
 
@@ -27,7 +27,7 @@ categories: ["设计模式"]
 ### 抽象产品（Product）
 定义了产品的规范，描述了产品的主要特性和功能，抽象工厂模式有多个抽象产品类，每个抽象产品类可以派生出多个具体产品类
 ### 具体产品（ConcreteProduct）
-实现了抽象产品角色所定义的接口，由具体工厂来创建，它 同具体工厂之间是多对一的关系。
+实现了抽象产品角色所定义的接口，由具体工厂来创建，它同具体工厂之间是多对一的关系。
 
 ## 实现
 
@@ -123,8 +123,11 @@ public class AbstractFactoryTest {
     }
 }
 
-# 结果
-Oracle user 
+```
+## 结果
+
+```text
+Oracle user
 Oracle department
 ```
 ## 小结

@@ -42,7 +42,7 @@ openssl req -x509 -new -nodes -sha512 -days 3650 \
 ```bash 
 openssl req -x509 -new -nodes -sha512 -days 3650 \
 -subj "/C=CN/ST=Yunnan/L=Kunming/O=example/OU=Personal/CN=172.31.12.216" \
-key ca.key -out ca.crt
+-key ca.key -out ca.crt
 ```
 
 ### 1.3 生成服务器证书

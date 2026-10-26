@@ -9,10 +9,10 @@ date: 2017-08-01
 categories: ["Spring"]
 ---
 ## 什么是 AOP
-> AOP(Aspect-OrientedProgramming，面向切面编程)，可以说是 OOP(Object-Oriented rograming，面向对象编程的补充和完善。OOP 引入封装、继承和多态性等概念来建立一种对象层次结构，用以模拟公共行为的一个集合。
+> AOP(Aspect-Oriented Programming，面向切面编程)，可以说是 OOP(Object-Oriented Programming，面向对象编程）的补充和完善。OOP 引入封装、继承和多态性等概念来建立一种对象层次结构，用以模拟公共行为的一个集合。
 当我们需要为分散的对象引入公共行为的时候，OOP 则显得无能为力。也就是说，OOP 允许你定义从上到下的关系，但并不适合定义从左到右的关系，例如日志功能。日志代码往往水平地散布在所有对象层次中，而与它所散布到的对象
 的核心功能毫无关系。对于其他类型的代码，如安全性、异常处理和透明的持续性也是如此。这种散布在各处的无关的代码被称为横切(cross-cutting)代码，在 OOP 设计中，它导致了大量代码的重复，而不利于各个模块的重用。
-> AOP 技术则恰恰相反，它利用一种称为“横切”的技术，剖解开封装的对象内部，并将那些影响了多个类的公共行为封装到一个可重用模块，并将其名为“Aspect”，即切面。
+> AOP 技术则恰恰相反，它利用一种称为“横切”的技术，剖解开封装的对象内部，并将那些影响了多个类的公共行为封装到一个可重用模块，并将其命名为“Aspect”，即切面。
 所谓“切面”，简单地说，就是将那些与业务无关，却为业务模块所共同调用的逻辑或责任封装起来，便于减少系统的重复代码，降低模块间的耦合度，并有利于未来的可操作性和可维护性。
 AOP 代表的是一个横向的关系，如果说“对象”是一个空心的圆柱体，其中封装的是对象的属性和行为；那么面向切面编程的方法，就仿佛一把利刃，将这些空心圆柱体剖开，以获得其内部的消息。
 而剖开的切面，也就是所谓的“切面”了。然后它又以巧夺天功的妙手将这些剖开的切面复原，不留痕迹。
@@ -21,10 +21,10 @@ AOP 代表的是一个横向的关系，如果说“对象”是一个空心的�
 + 二是采用静态织入的方式，引入特定的语法创建“切面”，从而使得编译器可以在编译期间织入有关“切面”的代码。
 
 ## AOP 使用场景
-AOP 用来封装横切关注点，具体可以在下面的场景中使用:
+AOP 用来封装横切关注点，具体可以在下面的场景中使用：
 + Authentication 权限
 + Caching 缓存
-+ Context passing 内容传递
++ Context passing 上下文传递
 + Error handling 错误处理
 + Lazy loading 懒加载
 + Debugging 调试
@@ -43,14 +43,14 @@ AOP 用来封装横切关注点，具体可以在下面的场景中使用:
 选择一组相关连接点的模式，即可以认为连接点的集合，Spring 支持 perl5 正则表达式和 AspectJ 切入点模式，Spring 默认使用 AspectJ 语法，在 AOP 中表示为**“在哪里做的集合”**；
 
 ### 增强(Advice)
-在连接点上执行的行为，增强提供了在 AOP 中需要在切入点所选择的连接点处进行扩展现有行为的手段；包括前置增强(before advice)、后置增强(after advice)、环绕增强(around advice),
-在 Spring 中通过代理模式实现 AOP，并通过拦截器模式以环绕连接点的拦截器链织入增强 ，在 AOP 中表示为**“做什么”**；
+在连接点上执行的行为，增强提供了在 AOP 中需要在切入点所选择的连接点处进行扩展现有行为的手段；包括前置增强(before advice)、后置增强(after advice)、环绕增强(around advice)，
+在 Spring 中通过代理模式实现 AOP，并通过拦截器模式以环绕连接点的拦截器链织入增强，在 AOP 中表示为**“做什么”**；
 
 ### 切面(Aspect)
-横切关注点的模块化，可以认为是增强、引入和切入点的组合；在 Spring 中可以使用 Schema 和@AspectJ 方式进行组织实现,在 AOP 中表示为**“在哪里做和做什么的集合”**；
+横切关注点的模块化，可以认为是增强、引入和切入点的组合；在 Spring 中可以使用 Schema 和@AspectJ 方式进行组织实现，在 AOP 中表示为**“在哪里做和做什么的集合”**；
 
 ### 目标对象(Target Object)
-需要被织入横切关注点的对象，即该对象是切入点选择的对象，需要被增强的对象，从而也可称为“被增强对象”；由于 SpringAOP 通过代理模式实现，从而这个对象永远是被代理对象，在 AOP 中表示为**“对谁做”**；
+需要被织入横切关注点的对象，即该对象是切入点选择的对象，需要被增强的对象，从而也可称为“被增强对象”；由于 Spring AOP 通过代理模式实现，从而这个对象永远是被代理对象，在 AOP 中表示为**“对谁做”**；
 
 ### AOP 代理(AOPProxy)
 AOP 框架使用代理模式创建的对象，从而实现在连接点处插入增强(即应用切面)，就是通过代理来对目标对象应用切面。在 Spring 中，AOP 代理可以用 JDK 动态代理或 CGLIB 代理实现，而通过拦截器模型应用切面。
@@ -59,23 +59,23 @@ AOP 框架使用代理模式创建的对象，从而实现在连接点处插入�
 织入是一个过程，是将切面应用到目标对象从而创建出 AOP 代理对象的过程，织入可以在编译期、类装载期、运行期进行。
 
 ### 引入(Introduction)
-也称为内部类型声明，为已有的类添加额外新的字段或方法，Spring 允许引入新的接口(必须对应一个实现)到所有被代理对象(目标对象),在 AOP 中表示为“做什么(新增什么);
+也称为内部类型声明，为已有的类添加额外新的字段或方法，Spring 允许引入新的接口(必须对应一个实现)到所有被代理对象(目标对象)，在 AOP 中表示为“做什么(新增什么)”；
 
 ## AOP 的 Advice 类型
 ### 前置增强(Before advice)
-在某连接点之前执行的增强，但这个增强不能阻止连接点前的执行(除非它抛出一个异常)。
+在某连接点之前执行的增强，但这个增强不能阻止连接点的执行(除非它抛出一个异常)。
 
 ### 后置返回增强(After returning advice)
-在某连接点之前执行的增强，但这个增强不能阻止连接点前的执行(除非它抛出一个异常)。
+在某连接点正常完成后执行的增强，可以访问到方法的返回值。
 
 ### 后置异常增强(After throwing advice)
 在方法抛出异常退出时执行的增强。
 
 ### 后置最终增强(After (finally) advice)
-当某连接点退出的时候执行的增强(不论是正常返回还是异常退出)
+当某连接点退出的时候执行的增强(不论是正常返回还是异常退出)。
 
 ### 环绕增强(Around Advice)
-包围一个连接点的增强，如方法调用。这是最强大的一种增强类型。 环绕增强可以在方法调用前后完成自定义的行为。它也会选择是否继续执行连接点或直接返回它们自己的返回值或抛出异常来结束执行,相当于 Before + AfterReturning。
+包围一个连接点的增强，如方法调用。这是最强大的一种增强类型。环绕增强可以在方法调用前后完成自定义的行为。它也会选择是否继续执行连接点或直接返回它们自己的返回值或抛出异常来结束执行，相当于 Before + AfterReturning。
 
 ## Spring AOP 实现方式
 ### 经典的基于代理的 AOP
@@ -98,7 +98,7 @@ public class Person implements Sleepable {
 }
 ```
 
-3. 关注于睡觉的逻辑，但是睡觉需要其他功能辅助，比如睡前脱衣服，起床脱衣服，这里开始就需要 AOP 替“Person”完成。
+3. 关注于睡觉的逻辑，但是睡觉需要其他功能辅助，比如睡前脱衣服，起床后穿衣服，这里开始就需要 AOP 替“Person”完成。
 
 ```java
 import org.springframework.aop.AfterAdvice;
@@ -159,7 +159,7 @@ public class SleepAdvice implements MethodBeforeAdvice, AfterReturningAdvice {
 </beans>
 ```
 
-5. 测试:
+5. 测试：
 
 ```java
 import org.springframework.context.ApplicationContext;
@@ -168,15 +168,14 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class SleepTest {
     public static void main(String[] args) {
-        ApplicationContext context = new FileSystemXmlApplicationContext("classpath:
-        		applicationContext.xml");
+        ApplicationContext context = new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
         Sleepable person = (Sleepable) context.getBean("proxy");
         person.sleep();
     }
 }
 ```
 
-6. 结果:
+6. 结果：
 > 信息: Loading XML bean definitions from class path resource [applicationContext.xml]
 > 睡觉前脱衣服
 > 睡觉
@@ -213,17 +212,17 @@ public class SleepTest {
 </beans>
 ```
 
-8. 结果:
+8. 结果：
 > 信息: Loading XML bean definitions from class path resource [spring-aop-proxy-based.xml]
 > 睡觉前脱衣服
 > 睡觉
 > 起床后穿衣服
 
 ### 基于 XML 配置实现 AOP(aop:config)
-1.接口
+1. 接口
 
 ```java
-public interface IUserManagerService {
+public interface IUserService {
     //查找用户
     public String findUser();
     
@@ -253,7 +252,7 @@ public class UserServiceImpl implements IUserService {
 }
 ```
 
-3.切面类，实现对接口的增强
+3. 切面类，实现对接口的增强
 
 ```java
 import org.aspectj.lang.JoinPoint;
@@ -313,8 +312,7 @@ public class AOPAspect {
 
         // 执行完方法返回值，调用proceed()方法，就会触发切入点方法执行
         Object result = proceedingJoinPoint.proceed();
-        System.out.println("输出,方法名：" + method + ";目标对象：" + target + ";
-        					返回值：" + result);
+        System.out.println("输出,方法名：" + method + ";目标对象：" + target + ";返回值：" + result);
         System.out.println("Around ===> 执行环绕通知结束=========");
         return result;
     }
@@ -342,11 +340,9 @@ public class AOPAspect {
 
     <aop:config>
         <aop:aspect ref="aopAspect">
-            <aop:pointcut id="pointcut" expression="execution(* *.*.*.*.UserServiceImpl..
-            					*(..))"/>
+            <aop:pointcut id="pointcut" expression="execution(* *.*.*.*.UserServiceImpl.*(..))"/>
             <aop:before method="before" pointcut-ref="pointcut"/>
-            <aop:after-returning method="afterReturning" pointcut-ref="pointcut" 			
-            					returning="result"/>
+            <aop:after-returning method="afterReturning" pointcut-ref="pointcut" returning="result"/>
             <aop:after method="after" pointcut-ref="pointcut"/>
             <aop:around method="around" pointcut-ref="pointcut"/>
         </aop:aspect>
@@ -362,8 +358,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class UserServiceTest {
     public static void main(String[] args) {
-        ApplicationContext context = new ClassPathXmlApplicationContext("classpath:
-        					spring-aop-xml.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring-aop-xml.xml");
         IUserService userService = (IUserService) context.getBean("userServiceImpl");
         userService.findUser();
         System.out.println();
@@ -409,7 +404,7 @@ public class Person implements Sleepable {
 }
 ```
 
-3. Person 关注于睡觉的逻辑，但是睡觉需要其他功能辅助，比如睡前脱衣服，起床脱衣服，这里开始就需要 AOP 替“Person”完成！
+3. Person 关注于睡觉的逻辑，但是睡觉需要其他功能辅助，比如睡前脱衣服，起床后穿衣服，这里开始就需要 AOP 替“Person”完成！
 
 ```java
 import org.aspectj.lang.annotation.AfterReturning;
@@ -457,7 +452,7 @@ public class SleepAdvice {
 </beans>
 ```
 
-5.测试：
+5. 测试：
 
 ```java
 import org.springframework.context.ApplicationContext;
@@ -465,8 +460,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class SleepTest {
     public static void main(String[] args) {
-        ApplicationContext context = new FileSystemXmlApplicationContext("classpath:
-        				spring-aop-aspectj.xml");
+        ApplicationContext context = new FileSystemXmlApplicationContext("classpath:spring-aop-aspectj.xml");
         Sleepable person = (Sleepable) context.getBean("person");
         person.sleep();
     }

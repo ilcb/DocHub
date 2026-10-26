@@ -8,11 +8,7 @@ tags: ["Docker", "CloudNative"]
 date: 2017-08-01
 categories: ["Docker"]
 ---
-# 安装 Docker
-
-## 1. 背景
-
-## 2. 安装准备
+## 1. 安装准备
 
 下载 docker 离线安装包，下载地址如下：
 
@@ -22,9 +18,9 @@ categories: ["Docker"]
 
 ![installer-list](img/installer-list.jpg)
 
-## 3. 分步安装法
+## 2. 分步安装法
 
-### 3.1 解压缩
+### 2.1 解压缩
 
 ```bash
 tar -zxvf docker-25.0.2.tgz
@@ -34,23 +30,23 @@ tar -zxvf docker-25.0.2.tgz
 
 ![docker-dir](img/docker-dir.jpg)
 
-### 3.2 复制文件
+### 2.2 复制文件
 
-将 docker 中的全部文件，使用下边命令，复制到/usr/bin
+将 docker 中的全部文件，使用下面命令，复制到/usr/bin
 
 ```bash
 cp ./docker/* /usr/bin
 ```
 
-### 3.3 创建 docker.service 文件
+### 2.3 创建 docker.service 文件
 
 ```bash
 vi /etc/systemd/system/docker.service
 ```
 
-然后将下边内容复制到 docker.service。
+然后将下面内容复制到 docker.service。
 
-```bash
+```ini
 [Unit]
 Description=Docker Application Container Engine
 Documentation=https://docs.docker.com
@@ -84,25 +80,25 @@ StartLimitInterval=60s
 WantedBy=multi-user.target
 ```
 
- 编辑好后，ESC 键à:wq 保存并退出 docker.service 文件。
+ 编辑好后，按 ESC 键后输入 :wq 保存并退出 docker.service 文件。
 
-### 3.5 添加可执行权限
+### 2.4 添加可执行权限
 
-```perl
+```bash
 chmod +x /etc/systemd/system/docker.service
 ```
 
-### 3.6 加载 docker.service
+### 2.5 加载 docker.service
 
-```undefined
+```bash
 systemctl daemon-reload
 ```
 
 注意，若修改了 docker.service 文件，则要重新加载该文件。
 
-### 3.7 启动 docker
+### 2.6 启动 docker
 
-```sql
+```bash
 ## 启动docker
 systemctl start docker
 
@@ -110,29 +106,29 @@ systemctl start docker
 systemctl enable docker.service
 ```
 
-### 3.8 查看 docker
+### 2.7 查看 docker
 
-```lua
+```bash
 systemctl status docker
 ```
 
 ![docker-status](img/docker-status.jpg)
 
-```undefined
+```bash
 docker -v
 ```
 
  ![docker-version](img/docker-version.jpg)
 
-## 4. 一键安装法
+## 3. 一键安装法
 
-如果您觉得上边的步骤繁琐，也可以用下边的办法，一键安装 docker。
+如果您觉得上面的步骤繁琐，也可以用下面的办法，一键安装 docker。
 
-#### 4.1 制作 docker.service 文件
+### 3.1 制作 docker.service 文件
 
-在 docker-18.06.3-ce.tgz 同目录下，创建 docker.service，打开编辑文件，文件内容与 3.4 节完全一样，此处不再赘述。
+在 docker-25.0.2.tgz 同目录下，创建 docker.service，打开编辑文件，文件内容与 2.3 节完全一样，此处不再赘述。
 
-#### 4.2 制作一键安装脚本
+### 3.2 制作一键安装脚本
 
 ```bash
 touch install.sh
@@ -160,9 +156,9 @@ echo 'docker安装成功'
 docker -v
 ```
 
-#### 4.3 制作一键卸载脚本
+### 3.3 制作一键卸载脚本
 
-Touch uninstall.sh，将以下内容复制到 uninstall.sh，保存退出。
+touch uninstall.sh，将以下内容复制到 uninstall.sh，保存退出。
 
 ```bash
 #!/bin/sh
@@ -177,30 +173,30 @@ systemctl daemon-reload
 echo '卸载成功'
 ```
 
-#### 4.4 安装 docker
+### 3.4 安装 docker
 
-此时 docker-18.06.3-ce.tgz 同目录下，还有上边创建的 docker.service，install.sh，uninstall.sh 这 3 个文件：
+此时 docker-25.0.2.tgz 同目录下，还有上面创建的 docker.service，install.sh，uninstall.sh 这 3 个文件：
 
 ![docker-bash](img/docker-bash.jpg)
 
 分别给 install.sh 和 uninstall.sh 赋予可执行权限。
 
-```perl
+```bash
 chmod +x install.sh
 chmod +x uninstall.sh
 ```
 
- 开始安装
+开始安装
 
 ```bash
 sh install.sh docker-25.0.2.tgz
 ```
 
-查看 docker 状态
+### 3.5 查看 docker 状态
 
-### ![docker-status](img/docker-status.jpg)
+![docker-status](img/docker-status.jpg)
 
-### 4.5 安装 Docker Compose 插件
+### 3.6 安装 Docker Compose 插件
 
 本目录下各中间件均采用 `docker compose` 部署，需额外安装 compose 插件：
 
@@ -215,8 +211,4 @@ docker compose version
 ```
 
 > 若为旧版 docker-compose（独立二进制），可下载到 `/usr/bin/docker-compose` 后以 `docker-compose` 命令使用，但建议统一使用 `docker compose` 子命令。
-
-### 5 总结
-
-一键安装法从实质上来说和分步骤安装方法是一样的，它将分步安装法的步骤，集中写到一个 shell 脚本，其优点是在一台新的机器上安装时，能节约时间，也不容易出错，如果想卸载 docker，一键操作也很方便。
 

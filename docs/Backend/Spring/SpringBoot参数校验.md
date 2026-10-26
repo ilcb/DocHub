@@ -9,13 +9,9 @@ date: 2017-08-01
 categories: ["Spring"]
 ---
 
-# SpringBoot 参数校验
-
-本文详细介绍`Spring Validation`各种场景下的最佳实践及其实现原理。
-
 ## 1. 简单使用
 
-`Java API`规范(`JSR303`)定义了`Bean`校验的标准`validation-api`，但没有提供实现。
+`Java API`规范（`JSR303`）定义了`Bean`校验的标准`validation-api`，但没有提供实现。
 
 `hibernate validation`是对这个规范的实现，并增加了校验注解如`@Email`、`@Length`等。
 
@@ -23,9 +19,9 @@ categories: ["Spring"]
 
 ### 1.1 引入依赖
 
-如果`spring-boot`版本小于`2.3.x`，`spring-boot-starter-web`会自动传入`hibernate-validator`依赖。
+如果`spring-boot`版本低于`2.3.0`，`spring-boot-starter-web`会自动引入`hibernate-validator`依赖。
 
-如果`spring-boot`版本大于`2.3.x`，则需要手动引入依赖：
+如果`spring-boot`版本在`2.3.0`及以上，则需要手动引入依赖：
 
 ```xml
 <dependency>
@@ -35,20 +31,18 @@ categories: ["Spring"]
 </dependency>
 ```
 
-对于`web`服务来说，为防止非法参数对业务造成影响，在`Controller`层一定要做参数校验！大部分情况下请求参数分为如下两种形式：
+对于`web`服务来说，为防止非法参数对业务造成影响，需要在`Controller`层做参数校验。大部分情况下请求参数分为如下两种形式：
 
 1. `POST`、`PUT`请求，使用`RequestBody`传递参数；
 2. `GET`请求，使用`RequestParam/PathVariable`传递参数。
-
-下面简单介绍下`RequestBody`和`RequestParam/PathVariable`的参数校验实战。
 
 ### 1.2 `RequestBody`参数校验
 
 `POST`、`PUT`请求一般会使用`RequestBody`传递参数，这种情况下后端使用**DTO 对象**进行接收。**只要给 DTO 对象加上`@Validated`注解就能实现自动参数校验**。
 
-比如，有一个保存`User`的接口，要求`userName`长度是`2-10`，`account`和`password`字段长度是`6-20`。如果校验失败，会抛出`MethodArgumentNotValidException`异常，`Spring`默认会将其转为`400（Bad Request）`请求。
+比如，有一个保存`User`的接口，要求`userName`长度是`2-10`，`account`和`password`字段长度是`6-20`。如果校验失败，会抛出`MethodArgumentNotValidException`异常，`Spring`默认会将其转为`400（Bad Request）`响应。
 
-> **DTO 表示数据传输对象（Data Transfer Object），用于服务器和客户端之间交互传输使用**。在 spring-web 项目中可以表示用于接收请求参数的`Bean`对象。
+> DTO 表示数据传输对象（Data Transfer Object），用于服务器和客户端之间交互传输。在 spring-web 项目中可以表示用于接收请求参数的`Bean`对象。
 
 - **在`DTO`字段上声明约束注解**
 
@@ -86,11 +80,11 @@ public Result saveUser(@RequestBody @Validated UserDTO userDTO) {
 
 ### 1.3 `RequestParam/PathVariable`参数校验
 
-`GET`请求一般会使用`RequestParam/PathVariable`传参，如果参数比较多(比如超过 6 个)，还是推荐使用`DTO`对象接收。
+`GET`请求一般会使用`RequestParam/PathVariable`传参，如果参数比较多（比如超过 6 个），则推荐使用`DTO`对象接收。
 
 否则，推荐将一个个参数平铺到方法入参中。
 
-在这种情况下，**必须在`Controller`类上标注`@Validated`注解，并在入参上声明约束注解(如`@Min`等)**。如果校验失败，会抛出`ConstraintViolationException`异常。代码示例如下：
+在这种情况下，**必须在`Controller`类上标注`@Validated`注解，并在入参上声明约束注解（如`@Min`等）**。如果校验失败，会抛出`ConstraintViolationException`异常。代码示例如下：
 
 ```java
 @RequestMapping("/api/user")
@@ -125,9 +119,9 @@ public class UserController {
 
 ### 1.4 统一异常处理
 
-前面说过如果校验失败，会抛出`MethodArgumentNotValidException`或者`ConstraintViolationException`异常。
+前面说过，如果校验失败，会抛出`MethodArgumentNotValidException`或者`ConstraintViolationException`异常。
 
-在实际项目开发中，通常会用**统一异常处理**来返回一个更友好的提示，比如系统要求无论发送什么异常，`http`的状态码必须返回`200`，由业务码去区分系统的异常情况。
+在实际项目开发中，通常会用**统一异常处理**来返回一个更友好的提示，比如系统要求无论抛出什么异常，`http`的状态码必须返回`200`，由业务码去区分系统的异常情况。
 
 ```java
 @RestControllerAdvice
@@ -159,9 +153,9 @@ public class CommonExceptionHandler {
 
 ### 2.1 分组校验
 
-在实际项目中，可能多个方法需要使用同一个`DTO`类来接收参数，而不同方法的校验规则很可能是不一样的。这个时候，简单地在`DTO`类的字段上加约束注解无法解决这个问题。
+在实际项目中，可能多个方法需要使用同一个`DTO`类来接收参数，而不同方法的校验规则很可能是不一样的。这个时候，只在`DTO`类的字段上加约束注解无法满足需求。
 
-因此`spring-validation`支持了**分组校验**的功能，专门用来解决这类问题。使用的还是上面的例子，比如保存`User`的时候，`UserId`是可空的，但是更新`User`的时候，`UserId`的值必须`>=10000000000000000L`；其它字段的校验规则在两种情况下一样。这个时候使用**分组校验**的代码示例如下：
+因此`spring-validation`提供了**分组校验**功能来解决这类问题。还是用上面的例子：保存`User`的时候，`UserId`是可空的；更新`User`的时候，`UserId`的值必须`>=10000000000000000L`；其它字段的校验规则在两种情况下一样。使用分组校验的代码示例如下：
 
 - **约束注解上声明适用的分组信息`groups`**
 
@@ -218,7 +212,7 @@ public Result updateUser(@RequestBody @Validated(UserDTO.Update.class) UserDTO u
 
 前面的示例中，`DTO`类里面的字段都是`基本数据类型`和`String`类型。但是实际场景中，有可能某个字段也是一个对象，这种情况下可以使用`嵌套校验`。
 
-比如，上面保存`User`信息的时候同时还带有`Job`信息。需要注意的是，**此时`DTO`类的对应字段必须标记`@Valid`注解**。
+比如，上面保存`User`信息的时候同时还带有`Job`信息，**此时`DTO`类的对应字段必须标记`@Valid`注解**。
 
 ```java
 @Data
@@ -272,15 +266,11 @@ public class UserDTO {
 }
 ```
 
-> 嵌套校验可以结合分组校验一起使用。还有就是`嵌套集合校验`会对集合里面的每一项都进行校验，例如`List<Job>`字段会对这个`list`里面的每一个`Job`对象都进行校验。
+> 嵌套校验可以结合分组校验一起使用。另外，`嵌套集合校验`会对集合里面的每一项都进行校验，例如`List<Job>`字段会对其中每一个`Job`对象进行校验。
 
 ### 2.3 集合校验
 
-如果请求体直接传递了`json`数组给后台，并希望对数组中的每一项都进行参数校验。
-
-此时如果直接使用`java.util.Collection`下的`list`或者`set`来接收数据，参数校验并不会生效！
-
-可以使用自定义`list`集合来接收参数：
+如果请求体直接传递`json`数组给后台，并希望对数组中的每一项都进行参数校验，此时直接使用`java.util.Collection`下的`list`或者`set`来接收数据，参数校验并不会生效。可以使用自定义`list`集合来接收参数：
 
 - **包装`List`类型，并声明`@Valid`注解**
 
@@ -313,7 +303,7 @@ public Result saveList(@RequestBody @Validated(UserDTO.Save.class) ValidationLis
 
 ### 2.4 自定义校验
 
-业务需求总是比框架提供的这些简单校验要复杂的多，可以自定义校验来满足需求。自定义`spring validation`非常简单，假设自定义`加密id`（由数字或者`a-f`的字母组成，`32-256`长度）校验，主要分为两步：
+业务需求可能比框架提供的这些简单校验复杂得多，这时可以自定义校验。假设要自定义`加密id`校验（由数字或`a-f`的字母组成，长度`32-256`），主要分为两步：
 
 - **自定义约束注解**
 
@@ -335,7 +325,7 @@ public @interface EncryptId {
 }
 ```
 
-- 实现`ConstraintValidator`接口编写约束校验器
+- **实现`ConstraintValidator`接口，编写约束校验器**
 
 ```java
 public class EncryptIdValidator implements ConstraintValidator<EncryptId, String> {
@@ -354,11 +344,11 @@ public class EncryptIdValidator implements ConstraintValidator<EncryptId, String
 }
 ```
 
-这样就可以使用`@EncryptId`进行参数校验了！
+这样就可以使用`@EncryptId`进行参数校验了。
 
 ### 2.5 编程式校验
 
-上面的示例都是基于`注解`来实现自动校验的，在某些情况下，可能希望以`编程方式`调用验证。这个时候可以注入`javax.validation.Validator`对象，然后再调用其`api`。
+上面的示例都是基于`注解`实现自动校验的，某些情况下可能希望以`编程方式`调用校验，这时可以注入`javax.validation.Validator`对象并调用其`api`。
 
 ```java
 @Autowired
@@ -382,9 +372,9 @@ public Result saveWithCodingValidate(@RequestBody UserDTO userDTO) {
 }
 ```
 
-### 2.6 快速失败(Fail Fast)
+### 2.6 快速失败（Fail Fast）
 
-`Spring Validation`默认会校验完所有字段，然后才抛出异常。可以通过一些简单的配置，开启`Fali Fast`模式，一旦校验失败就立即返回。
+`Spring Validation`默认会校验完所有字段，然后才抛出异常。可以通过一些简单的配置，开启`Fail Fast`模式，一旦校验失败就立即返回。
 
 ```java
 @Bean
@@ -398,7 +388,7 @@ public Validator validator() {
 }
 ```
 
-### 2.7 `@Valid`和`@Validated`区别
+### 2.7 `@Valid` 和 `@Validated` 的区别
 
 | 区别         | @Valid                                          | @Validated              |
 | :----------- | :---------------------------------------------- | :---------------------- |
@@ -413,7 +403,7 @@ public Validator validator() {
 
 在`spring-mvc`中，`RequestResponseBodyMethodProcessor`是用于解析`@RequestBody`标注的参数以及处理`@ResponseBody`标注方法的返回值的。
 
-显然执行参数校验的逻辑肯定就在解析参数的方法`resolveArgument()`中：
+执行参数校验的逻辑就在解析参数的方法`resolveArgument()`中：
 
 ```java
 public class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor {
@@ -466,7 +456,7 @@ protected void validateIfApplicable(WebDataBinder binder, MethodParameter parame
 }
 ```
 
-看到这里应该能明白为什么这种场景下`@Validated`、`@Valid`两个注解可以混用。接下来继续看`WebDataBinder.validate()`实现。
+这也说明了为什么这种场景下`@Validated`、`@Valid`两个注解可以混用。接下来继续看`WebDataBinder.validate()`的实现。
 
 ```java
 @Override
@@ -479,7 +469,7 @@ public void validate(Object target, Errors errors, Object... validationHints) {
 }
 ```
 
-最终发现底层最终还是调用了`Hibernate Validator`进行真正的校验处理。
+可以看到，底层最终调用的还是`Hibernate Validator`进行真正的校验。
 
 ### 3.2 方法级别的参数校验实现原理
 
@@ -490,7 +480,7 @@ public void validate(Object target, Errors errors, Object... validationHints) {
 **其底层实现原理就是`AOP`，具体来说是通过`MethodValidationPostProcessor`动态注册`AOP`切面，然后使用`MethodValidationInterceptor`对切点方法织入增强**。
 
 ```java
-public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessorimplements InitializingBean {
+public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessor implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         //为所有`@Validated`标注的Bean创建切面

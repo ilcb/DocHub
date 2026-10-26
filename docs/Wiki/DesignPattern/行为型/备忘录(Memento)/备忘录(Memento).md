@@ -3,8 +3,8 @@ title: 备忘录模式
 description: "备忘录模式"
 slug: "/backend/design-pattern/action/memento"
 hide_table_of_contents: false
-keywords: ["设计模式", "结构型"]
-tags: ["设计模式", "结构型"]
+keywords: ["设计模式", "行为型"]
+tags: ["设计模式", "行为型"]
 date: 2017-08-01
 categories: ["设计模式"]
 ---
@@ -79,7 +79,7 @@ public class Memento {
     }
 }
 
-public class MenentoTest {
+public class MementoTest {
     @Test
     public void test() {
         Originator originator = new Originator();
@@ -94,7 +94,10 @@ public class MenentoTest {
     }
 }
 
+```
 ## 结果
+
+```text
 初始状态:状态1
 改变后状态:状态2
 恢复后状态:状态1

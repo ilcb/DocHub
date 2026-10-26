@@ -27,6 +27,14 @@ Jenkins 是最流行的开源 CI/CD 工具。本文按 docker-compose 方式**�
 
 ## 2. 创建宿主目录并设置权限
 
+SonarQube 内嵌 Elasticsearch，**宿主机需先满足内核参数要求**（否则 SonarQube 起不来）：
+
+```bash
+# 立即生效；写入 /etc/sysctl.conf 可持久化
+sudo sysctl -w vm.max_map_count=262144
+echo "vm.max_map_count=262144" | sudo tee -a /etc/sysctl.conf
+```
+
 bind mount 首次使用需先建目录并授权（jenkins uid 1000、sonarqube/postgres uid 999）：
 
 ```bash
@@ -153,55 +161,55 @@ Jenkins 默认端口 8080，浏览器访问 `http://{jenkinsServerIP}:8080`：
 2. 安装推荐插件，创建管理员账户
 3. 进入「系统管理 / 全局工具设置」配置 JDK / Maven（如容器内需手动安装 jdk/maven，或使用「自动安装」）
 
-![启动web控制台](img//启动web控制台.png)
-![验证密钥](img//验证密钥.jpg)
+![启动web控制台](img/启动web控制台.png)
+![验证密钥](img/验证密钥.jpg)
 
 ## 8. 集成 SonarQube
 
-SonarQube 是开源代码质量管理系统，用于检测代码中的错误、漏洞和代码规范，可与 Jenkins 集成，在项目拉取后进行连续的代码检查。
+SonarQube 是开源代码质量管理系统，用于检测代码中的错误与漏洞、检查代码规范，可与 Jenkins 集成，在项目拉取后进行连续的代码检查。
 
 ### 登录 SonarQube
 
 浏览器访问 `http://{sonarServerIP}:9000`，默认账号密码 `admin/admin`（首次登录强制改密）。
 
-![sonar-dashboard](img//sonar-dashboard.jpg)
+![sonar-dashboard](img/sonar-dashboard.jpg)
 
 ### Jenkins 安装 SonarQube Scanner 插件
 
-首页 >> Manager Jenkins(系统管理) >> Manage Plugins(插件管理)，安装 `SonarQube Scanner for Jenkins`。
+首页 >> Manage Jenkins（系统管理） >> Manage Plugins(插件管理)，安装 `SonarQube Scanner for Jenkins`。
 
-![install-sonarqube-scanner](img//install-sonarqube-scanner.jpg)
+![install-sonarqube-scanner](img/install-sonarqube-scanner.jpg)
 
 ### 生成 SonarQube 令牌
 
 在 SonarQube 控制台生成 token 并复制保存（后续不可见）。
 
-![sonar-token-generate](img//sonar-token-generate.jpg)
+![sonar-token-generate](img/sonar-token-generate.jpg)
 
 ### 配置 Jenkins 的 SonarQube 信息
 
 Dashboard > Config System，填入 SonarQube 服务器地址与 token。
 
-![jenkins-sonarqube-config](img//jenkins-sonarqube-config.jpg)
+![jenkins-sonarqube-config](img/jenkins-sonarqube-config.jpg)
 
 ### 配置 Sonar-scanner
 
 Dashboard > Global Tool Configuration，配置 SonarQube Scanner。
 
-![jenkins-sonarqube-scanner-config](img//jenkins-sonarqube-scanner-config.jpg)
+![jenkins-sonarqube-scanner-config](img/jenkins-sonarqube-scanner-config.jpg)
 
 ### 构建任务中配置 Sonar Scanner
 
 在构建任务的「构建」步骤添加 `SonarScanner`，指定分析属性（项目 key、源码路径等）。
 
-![projects-sonar-scanner-config](img//projects-sonar-scanner-config.jpg)
+![projects-sonar-scanner-config](img/projects-sonar-scanner-config.jpg)
 
 ### 查看扫描结果
 
 执行构建后，可在 SonarQube 控制台查看代码质量报告。
 
-![查看sonar扫描结果](img//查看sonar扫描结果.jpg)
-![sonar扫描详情](img//sonar扫描详情.jpg)
+![查看sonar扫描结果](img/查看sonar扫描结果.jpg)
+![sonar扫描详情](img/sonar扫描详情.jpg)
 
 ## 9. 常见问题
 

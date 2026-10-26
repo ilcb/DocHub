@@ -15,7 +15,7 @@ categories: ["设计模式"]
 ![prototype](img/prototype.png)
 
 ### 抽象原型（Prototype）角色
-规定了具体原型对象必须实现的接口（如果要提供深拷贝，则必须具有实现 clone 的规定）
+规定了具体原型对象必须实现的接口（如果要提供深拷贝，则必须实现 clone 方法）
 ### 具体原型（ConcretePrototype）
 从抽象原型派生而来，是客户程序使用的对象，即被复制的对象。此角色需要实现抽象原型角色所要求的接口。
 
@@ -75,14 +75,17 @@ public class PrototypeTest {
         Prototype clonedP1 = p1.clone();
         System.out.println("clonedP1：" + clonedP1);
 
-        //有人动态的切换了实现
+        //有人动态地切换了实现
         Prototype p2 = new ConcretePrototype2("bbb");
         Prototype clonedP2 = p2.clone();
         System.out.println("clonedP2：" + clonedP2);
     }
 }
 
+```
 ## 结果
+
+```text
 clonedP1：Now in Prototype1, the name is aaa
 clonedP2：Now in Prototype2, the name is bbb
 ```

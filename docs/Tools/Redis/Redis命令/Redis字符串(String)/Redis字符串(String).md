@@ -22,8 +22,8 @@ categories: ["Redis"]
 | `GETSET key value`          | 设置新值并返回旧值       | 当 key 没有旧值时，即 key 不存在时，返回 nil <br/>当 key 存在但不是字符串类型时，返回一个错误 |
 | `STRLEN key`                | 获取字符串长度           | 当 key 不存在时，返回 0                                      |
 | `APPEND key value`          | 追加字符串到末尾         | 如果 key 已经存在并且是一个字符串， APPEND 命令将 value 追加到 key 原来的值的末尾。<br/>如果 key 不存在， APPEND 就简单地将给定 key 设为 value ，就像执行 SET key value 一样。 |
-| `GETRANGE key start end`    | 获取字符串子串           | 符串的截取范围为 [start, end]                                |
-| `SETRANGE key offset value` | 从指定位置开始覆写字符串 |                                                              |
+| `GETRANGE key start end`    | 获取字符串子串           | 字符串的截取范围为 [start, end]                              |
+| `SETRANGE key offset value` | 从指定位置开始覆写字符串 | 当 key 不存在时，先将其值补零到指定偏移量，再写入 value 。<br/>返回修改后的字符串长度 |
 
 ### 2.1 示例
 
@@ -72,7 +72,7 @@ OK
 
 | 命令                        | 描述                 | 说明                                                         |
 | :-------------------------- | :------------------- | :----------------------------------------------------------- |
-| `INCR key`                  | 将数值递增 1          |                                                              |
+| `INCR key`                  | 将数值递增 1          | 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCR 命令。<br/>如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。 |
 | `INCRBY key increment`      | 将数值增加指定值     | 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 INCRBY 命令。<br/>如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。 |
 | `INCRBYFLOAT key increment` | 将数值增加指定浮点数 | 如果 key 不存在，那么 INCRBYFLOAT 会先将 key 的值设为 0 ，再执行加法操作。<br/>如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。 |
 | `DECR key`                  | 将数值递减 1          | 如果 key 不存在，那么 key 的值会先被初始化为 0 ，然后再执行 DECR 操作。<br/>如果值包含错误的类型，或字符串类型的值不能表示为数字，那么返回一个错误。 |

@@ -1,6 +1,6 @@
 ---
 title: K3s 管理工具 Kuboard
-description: "K3s 管理工具 Kuboard"
+description: "K3s 管理工具 Kuboard（docker-compose 部署版本）"
 slug: "/cloud-native/orchestration/k3s-kuboard"
 hide_table_of_contents: false
 keywords: ["K3s", "Kuboard"]
@@ -23,27 +23,95 @@ categories: ["Orchestration"]
 
 
 
-## 2. 安装 Kuboard
+## 2. 安装 Kuboard（docker-compose 部署）
+
+本文按 docker-compose 方式部署 Kuboard，镜像、端口、集群地址、数据目录等全部集中在 `.env` 中管理。
+
+### 2.1 宿主目录
+
+| 宿主目录 | 用途 |
+|---------|------|
+| `/data/runtime/docker/kuboard/data` | Kuboard 数据目录 |
+
+> 若将 `.env` 中 `KUBOARD_DATA_DIR` 留空，则回退使用 Docker 命名卷 `kuboard-data`，无需创建宿主目录。
+
+### 2.2 创建宿主目录
+
+bind mount 首次使用需先建目录：
 
 ```bash
-## 下载docker镜像
-docker pull eipwork/kuboard:v3
-
-## 运行容器
-docker run -d \
-  --restart=unless-stopped \
-  --name=kuboard \
-  -p 30080:80/tcp \
-  -p 10081:10081/tcp \
-  -e KUBOARD_ENDPOINT="https://192.168.0.110:6443" \
-  -e KUBOARD_AGENT_SERVER_TCP_PORT="10081" \
-  -v /root/kuboard-data:/data/docker/kuboard/data \
-  eipwork/kuboard:v3
+mkdir -p /data/runtime/docker/kuboard/data
 ```
 
+### 2.3 编制 .env
 
+在本目录创建 `.env` 文件（内容如下，按需修改）：
+
+```bash
+# ---------- Kuboard 环境变量（集中管理） ----------
+# 镜像版本
+KUBOARD_IMAGE=eipwork/kuboard:v3
+# 容器名
+KUBOARD_CONTAINER_NAME=kuboard
+# Web 界面端口（映射到容器 80）
+KUBOARD_PORT=30080
+# Kuboard Agent 通信 TCP 端口（映射到容器 10081）
+KUBOARD_AGENT_PORT=10081
+# K3s/K8s 集群 API 服务端地址（对应 KUBOARD_ENDPOINT）
+KUBOARD_ENDPOINT=https://192.168.0.110:6443
+# 宿主机数据目录（统一约定 /data/runtime/docker/<服务>）；留空则回退到命名卷 kuboard-data
+KUBOARD_DATA_DIR=/data/runtime/docker/kuboard/data
+TZ=Asia/Shanghai
+```
+
+### 2.4 .env 变量说明
+
+| 变量 | 说明 | 示例 |
+|------|------|------|
+| `KUBOARD_IMAGE` | 镜像版本 | `eipwork/kuboard:v3` |
+| `KUBOARD_CONTAINER_NAME` | 容器名 | `kuboard` |
+| `KUBOARD_PORT` | Web 界面端口（映射到容器 80） | `30080` |
+| `KUBOARD_AGENT_PORT` | Agent 通信 TCP 端口（映射到容器 10081） | `10081` |
+| `KUBOARD_ENDPOINT` | K3s/K8s 集群 API 服务端地址 | `https://192.168.0.110:6443` |
+| `KUBOARD_DATA_DIR` | 数据目录，留空回退命名卷 | `/data/runtime/docker/kuboard/data` |
+| `TZ` | 时区 | `Asia/Shanghai` |
 
 **KUBOARD_ENDPOINT 需要对应 K3s 服务端地址**
+
+### 2.5 docker-compose.yml
+
+在本目录创建 `docker-compose.yml`：
+
+```yaml
+services:
+  kuboard:
+    image: ${KUBOARD_IMAGE}
+    container_name: ${KUBOARD_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      KUBOARD_ENDPOINT: ${KUBOARD_ENDPOINT}
+      KUBOARD_AGENT_SERVER_TCP_PORT: ${KUBOARD_AGENT_PORT}
+      TZ: ${TZ}
+    ports:
+      - "${KUBOARD_PORT}:80/tcp"
+      - "${KUBOARD_AGENT_PORT}:10081/tcp"
+    volumes:
+      - ${KUBOARD_DATA_DIR:-kuboard-data}:/data/docker/kuboard/data
+
+volumes:
+  kuboard-data:
+```
+
+### 2.6 启动
+
+```bash
+cd 集群管理工具Kuboard
+docker compose up -d
+docker compose ps
+docker compose logs -f kuboard
+docker compose down        # 停止并移除容器（命名卷数据保留）
+docker compose down -v     # 连数据卷一起清空
+```
 
 ## 3. Kuboard 使用教程
 
@@ -127,7 +195,7 @@ systemctl stop k3s
 systemctl stop k3s-agent
 ```
 
-登陆到 `k3s-node02` 节点`172.31.12.2205 上，执行以下命令
+登陆到 `k3s-node02` 节点`172.31.12.225` 上，执行以下命令
 
 ```bash
 systemctl stop k3s-agent

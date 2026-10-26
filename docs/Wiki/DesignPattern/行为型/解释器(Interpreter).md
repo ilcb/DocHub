@@ -3,8 +3,8 @@ title: 解释器模式
 description: "解释器模式"
 slug: "/backend/design-pattern/action/interpreter"
 hide_table_of_contents: false
-keywords: ["设计模式", "结构型"]
-tags: ["设计模式", "结构型"]
+keywords: ["设计模式", "行为型"]
+tags: ["设计模式", "行为型"]
 date: 2017-08-01
 categories: ["设计模式"]
 ---
@@ -86,7 +86,7 @@ public class Context {
     }
 }
 
-public class InterperterTest {
+public class InterpreterTest {
     @Test
     public void interpret() {
         Context context = new Context();
@@ -102,7 +102,10 @@ public class InterperterTest {
     }
 }
 
-##结果
+```
+## 结果
+
+```text
 终结表达式
 非终结解释器
 终结表达式
@@ -290,7 +293,7 @@ public class Calculator {
      * 1.若是操作数，就压栈，
      * 2.若是操作符，就连续弹出两个操作数计算，计算结果压栈
      * 3.栈顶的值即为所需结果
-     * 注：先弹出的是第一操作数，后弹出的是第二操作数
+     * 注：先弹出的是第二操作数（右操作数），后弹出的是第一操作数（左操作数）
      */
     public int calculate() {
         Expression leftExpression = null;
@@ -341,14 +344,15 @@ public class CalculterTest {
         System.out.println(result);
     }
 }
+```
 
-##结果
+## 结果
+
+```text
 后缀： 325-6*3/+
 -3
 后缀： 523312*-1+**+
 17
-
 ```
-
 
 

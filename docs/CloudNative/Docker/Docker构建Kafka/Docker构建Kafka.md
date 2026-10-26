@@ -41,6 +41,7 @@ chown -R 1001:1001 /data/runtime/docker/kafka
 KAFKA_IMAGE=bitnami/kafka:3.4.0
 KAFKA_ADVERTISED_HOST=localhost
 KAFKA_PORT=9092
+# KRaft controller 监听端口（容器内部使用，不映射宿主机，勿与 PLAINTEXT 混用）
 KAFKA_CONTROLLER_PORT=9093
 KAFKA_CONTAINER_NAME=kafka
 # 宿主机数据目录（统一约定 /data/runtime/docker/<服务>）；留空则回退到命名卷 kafka-data
@@ -55,7 +56,7 @@ TZ=Asia/Shanghai
 | `KAFKA_IMAGE` | 镜像版本 | `bitnami/kafka:3.4.0` |
 | `KAFKA_ADVERTISED_HOST` | 对外通告地址（客户端连接用，跨机需改本机 IP） | `localhost` |
 | `KAFKA_PORT` | 客户端端口 | `9092` |
-| `KAFKA_CONTROLLER_PORT` | controller 端口 | `9093` |
+| `KAFKA_CONTROLLER_PORT` | KRaft controller 监听端口（容器内部使用，不映射宿主机） | `9093` |
 | `KAFKA_CONTAINER_NAME` | 容器名 | `kafka` |
 | `KAFKA_DATA_DIR` | 数据目录，留空回退命名卷 | `/data/runtime/docker/kafka/data` |
 | `TZ` | 时区 | `Asia/Shanghai` |
@@ -71,17 +72,18 @@ services:
     container_name: ${KAFKA_CONTAINER_NAME}
     restart: unless-stopped
     ports:
+      # 仅 PLAINTEXT（客户端）对外暴露；CONTROLLER 为 KRaft 内部协议，不映射宿主机，
+      # 避免 9093 与其它教程（如 Prometheus 套件的 Alertmanager）冲突
       - "${KAFKA_PORT}:9092"
-      - "${KAFKA_CONTROLLER_PORT}:9093"
     environment:
       # KRaft 单节点：同时充当 controller 和 broker
       KAFKA_CFG_NODE_ID: 1
       KAFKA_CFG_PROCESS_ROLES: controller,broker
-      KAFKA_CFG_LISTENERS: CONTROLLER://:9093,PLAINTEXT://:9092
+      KAFKA_CFG_LISTENERS: CONTROLLER://:${KAFKA_CONTROLLER_PORT},PLAINTEXT://:9092
       # 对外通告地址，供客户端连接；跨机时改 .env 里 KAFKA_ADVERTISED_HOST
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_ADVERTISED_HOST}:${KAFKA_PORT}
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@${KAFKA_ADVERTISED_HOST}:${KAFKA_CONTROLLER_PORT}
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@localhost:${KAFKA_CONTROLLER_PORT}
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_KRAFT_CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"

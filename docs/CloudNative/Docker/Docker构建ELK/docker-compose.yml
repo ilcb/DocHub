@@ -2,10 +2,10 @@
 # ELK（Elasticsearch + Kibana + Logstash）—— docker-compose 部署版本
 #
 # 安全说明：镜像默认开启 xpack 安全（xpack.security.enabled=true）。
-#   首次启动后需为内置用户设置统一密码：
-#     docker compose exec elasticsearch ./bin/elasticsearch-setup-passwords interactive
-#   把设置的密码同步到 .env 的 ELASTIC_PASSWORD / KIBANA_PASSWORD / LOGSTASH_PASSWORD，
-#   然后 docker compose up -d 重建 kibana / logstash。
+#   首次启动时会按 .env 中的 ELASTIC_PASSWORD 自动设置 elastic 用户密码。
+#   其它内置用户（kibana_system / logstash_system 等）如需修改密码：
+#     docker compose exec elasticsearch elasticsearch-reset-password -u kibana_system -i
+#   （8.x 已移除 elasticsearch-setup-passwords 工具）
 #
 # 常用命令（在本目录 Docker构建ELK/ 下执行）：
 #   docker compose up -d
@@ -22,7 +22,7 @@ services:
     restart: always
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"   # Xms 必须等于 Xmx
       - TZ=${TZ}
     ulimits:
       memlock:

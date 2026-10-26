@@ -11,9 +11,9 @@ categories: ["Docker"]
 
 # Docker 构建 OnlyOffice 集群（docker-compose 部署版本）
 
-# 1. 选型
+## 1. 选型
 
-因为项目需要，需要在内网的环境下部署一套 office 的在线编辑软件。综合对比了几种主流解决方案，onlyoffice 比较合适：
+因项目需要，需在内网环境部署一套 office 的在线编辑软件。综合对比了几种主流解决方案，onlyoffice 比较合适：
 
 | 解决方案 | 在线预览 | 在线编辑 | 本地依赖 | 内网使用 | 私有化部署 | 免费使用 |
 | -------- | -------- | -------- | -------- | -------- | ---------- | -------- |
@@ -31,17 +31,17 @@ OnlyOffice 项目信息：
 
 本文按 docker-compose 方式部署 **PostgreSQL + 3 个 OnlyOffice 实例（8091-8093）+ Nginx 负载均衡（80）** 的伪集群，镜像、端口、目录、容器名等全部集中在 `.env` 中管理。
 
-# 2. 宿主目录
+## 2. 宿主目录
 
 | 宿主目录 | 用途 | 容器内用户 |
 |---------|------|-----------|
 | `/data/runtime/docker/onlyoffice/postgres` | PostgreSQL 数据（三个实例共用） | uid 999 |
-| `/data/runtime/docker/onlyoffice/DocumentServer` | OnlyOffice 文档数据 / 日志 / 缓存 | root（compose 已设 privileged） |
+| `/data/runtime/docker/onlyoffice/DocumentServer` | OnlyOffice 文档数据 / 日志 / 缓存 | root |
 | `/data/runtime/docker/onlyoffice/conf` | 配置文件（nginx/office.conf） | 只读 |
 
 > 数据目录：`.env` 中 `ONLYOFFICE_DB_DIR` / `ONLYOFFICE_DATA_DIR` 留空则回退使用 Docker 命名卷；**配置目录 `ONLYOFFICE_CONF_DIR` 为必填**，需先按第 3 节复制配置。
 
-# 3. 创建宿主目录并设置权限
+## 3. 创建宿主目录并设置权限
 
 bind mount 首次使用需先建目录（postgres 授权 uid 999；onlyoffice 以 root 运行无需授权）：
 
@@ -55,7 +55,7 @@ mkdir -p /data/runtime/docker/onlyoffice/{postgres,DocumentServer}
 chown -R 999:999 /data/runtime/docker/onlyoffice/postgres
 ```
 
-# 4. 编制 .env
+## 4. 编制 .env
 
 在本目录创建 `.env` 文件（内容如下，按需修改）：
 
@@ -77,7 +77,7 @@ ONLYOFFICE_CONF_DIR=/data/runtime/docker/onlyoffice/conf
 TZ=Asia/Shanghai
 ```
 
-# 5. .env 变量说明
+## 5. .env 变量说明
 
 | 变量 | 说明 | 示例 |
 |------|------|------|
@@ -88,7 +88,7 @@ TZ=Asia/Shanghai
 | `ONLYOFFICE_CONF_DIR` | 配置目录（必填，先复制 conf/） | `/data/runtime/docker/onlyoffice/conf` |
 | `TZ` | 时区 | `Asia/Shanghai` |
 
-# 6. docker-compose.yml
+## 6. docker-compose.yml
 
 在本目录创建 `docker-compose.yml`：
 
@@ -98,7 +98,6 @@ x-onlyoffice: &onlyoffice
   restart: always
   stdin_open: true
   stop_grace_period: 60s
-  privileged: true
   environment:
     DB_TYPE: postgres
     DB_HOST: postgres
@@ -106,6 +105,8 @@ x-onlyoffice: &onlyoffice
     DB_NAME: onlyoffice
     DB_USER: onlyoffice
     DB_PASS: onlyoffice
+    # JWT 关闭意味着任何能访问端口的人都能调用文档服务（SSRF/转码滥用），
+    # 测试环境可接受；对外服务请开启 JWT 并配置密钥
     JWT_ENABLED: "false"
   depends_on:
     - postgres
@@ -173,7 +174,7 @@ services:
       - onlyoffice-8093
 ```
 
-# 7. Nginx 负载配置（`${ONLYOFFICE_CONF_DIR}/nginx/office.conf`）
+## 7. Nginx 负载配置（`${ONLYOFFICE_CONF_DIR}/nginx/office.conf`）
 
 ```nginx
 upstream office {
@@ -205,7 +206,7 @@ server {
 }
 ```
 
-# 8. 启动集群
+## 8. 启动集群
 
 ```bash
 cd Docker构建OnlyOffice
@@ -218,11 +219,11 @@ docker compose down -v     # 连数据卷一起清空
 
 本方案启动 3 个 onlyoffice 实例：`onlyoffice-8091`、`onlyoffice-8092`、`onlyoffice-8093`，由 Nginx（端口 80）负载均衡。
 
-# 9. 验证
+## 9. 验证
 
 浏览器访问 `http://<服务器IP>:80`，能正常打开 OnlyOffice 欢迎页即部署成功；多次刷新可见 `X-Route-Ip` 响应头在 8091/8092/8093 间轮换。
 
-# 10. 重制 OnlyOffice 镜像（可选）
+## 10. 重制 OnlyOffice 镜像（可选）
 
 官方镜像默认不支持 WOPI 协议，且编辑器 logo 为 `ONLYOFFICE`。如需改造：
 
@@ -241,7 +242,7 @@ docker compose down -v     # 连数据卷一起清空
 2. 构建自定义镜像：`docker build --no-cache -f ./Dockerfile -t exfoide/onlyoffice:7.3.3 .`
 3. 把 `.env` 中 `ONLYOFFICE_IMAGE` 改为自定义镜像名后重新 `docker compose up -d`
 
-# 11. OnlyOffice 集成 WOPI 协议（摘要）
+## 11. OnlyOffice 集成 WOPI 协议（摘要）
 
 WOPI（Web Application Open Platform Interface）让宿主系统（WOPI Host）通过 REST API 与 OnlyOffice 客户端交换文件，交互流程：
 

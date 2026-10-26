@@ -11,19 +11,19 @@ categories: ["Spring"]
 
 ## 1.背景
 
-本文旨在分析 Bean 生命周期的整体流程，Bean 就是一些 Java 对象，只不过这些 Bean 不是我们主动 new 出来的，而是交个 Spring IOC 容器创建并管理的，因此 Bean 的生命周期受 Spring IOC 容器控制，Bean 生命周期大致分为以下几个阶段：
+本文旨在分析 Bean 生命周期的整体流程，Bean 就是一些 Java 对象，只不过这些 Bean 不是我们主动 new 出来的，而是交给 Spring IOC 容器创建并管理的，因此 Bean 的生命周期受 Spring IOC 容器控制，Bean 生命周期大致分为以下几个阶段：
 
 1. Bean 的实例化(Instantiation) :
 
    Spring 框架会取出 BeanDefinition 的信息进行判断当前 Bean 的范围是否是 singleton 的，是否不是延迟加载的，是否不是 FactoryBean 等，最终将一个普通的 singleton 的 Bean 通过反射进行实例化
 
 2. Bean 的属性赋值(Populate) :
-	Bean 实例化之后还仅仅是个"半成品"，还需要对 Bean 实例的属性进行填充，Bean 的属性赋值就是指 Spring 容器根据 BeanDefinition 中属性配置的属性值注入到 Bean 对象中的过程。
+	Bean 实例化之后还仅仅是个"半成品"，还需要对 Bean 实例的属性进行填充，Bean 的属性赋值就是指 Spring 容器根据 BeanDefinition 中的属性值注入到 Bean 对象中的过程。
 
 3. Bean 的初始化(Initialization) :
 对 Bean 实例的属性进行填充完之后还需要执行一些 Aware 接口方法、执行 BeanPostProcessor 方法、执行 InitializingBean 接口的初始化方法、执行自定义初始化 init 方法等。该阶段是 Spring 最具技术含量和复杂度的阶段，并且 Spring 高频面试题 Bean 的循环引用问题也是在这个阶段体现的；
 4. Bean 的使用阶段:
-经过初始化阶段，Bean 就成为了一个完整的 Spring Bean，被存储到单例池 singletonObjects 中去了，即完成了 Spring Bean 的整个生命周期，接下来 Bean 就可以被随心所欲地使用了。
+经过初始化阶段，Bean 就成为了一个完整的 Spring Bean，被存储到单例池 singletonObjects 中去了，即完成了 Spring Bean 的整个生命周期，接下来 Bean 即可正常使用了。
 5. Bean 的销毁(Destruction) ：
 Bean 的销毁是指 Spring 容器在关闭时，执行一些清理操作的过程。在 Spring 容器中， Bean 的销毁方式有两种：销毁方法 destroy-method 和 DisposableBean 接口。
 
@@ -36,7 +36,7 @@ Bean 的完整生命周期经历了各种方法调用，这些方法可以划分
 1. Bean 自身的方法:
 包括了 Bean 本身调用的方法和通过配置文件中`<bean>`的 init-method 和 destroy-method 指定的方法
 2. Bean 级生命周期接口方法:
-包括了 BeanNameAware、BeanFactoryAware、InitializingBean 和 DiposableBean 这些接口的方法
+包括了 BeanNameAware、BeanFactoryAware、InitializingBean 和 DisposableBean 这些接口的方法
 3. 容器级生命周期接口方法:
 包括了 InstantiationAwareBeanPostProcessor 和 BeanPostProcessor 这两个接口实现，一般称它们的实现类为“后处理器”。
 4. 工厂后处理器接口方法:
@@ -250,22 +250,22 @@ public class AppConfig {
 
 
 
-## 5.LifeCycle
+## 5. LifeCycle
 
 ### 5.1 Lifecycle
 
 #### 5.1.1 为什么要用 Lifecycle
-在 SpringBoot 的应用中，我们通常会利用@PostConstruct 和@PreDestroy 注解，在 Bean 初始化或销毁时执行一些操作，这些操作都处于 Bean 声明周期的层面。
+在 SpringBoot 的应用中，我们通常会利用@PostConstruct 和@PreDestroy 注解，在 Bean 初始化或销毁时执行一些操作，这些操作都处于 Bean 生命周期的层面。
 
 然而，在某些情况下，我们可能会遇到一些遗漏的场景，比如希望在容器本身的生命周期事件（如容器启动、停止）上执行一些操作，一个典型的例子就是在 Spring Boot 中启动内嵌的 Web 容器。这时候，该如何处理呢？
 
 这就需要利用 Spring 提供的另一个接口 `Lifecycle`。
 
-`Lifecycle`接口它允许在所有 Bean 创建完成之后执行自定义的一些任务并运行，并在退出时执行资源销毁流程。
+`Lifecycle` 接口允许在所有 Bean 创建完成之后执行自定义的一些任务并运行，并在退出时执行资源销毁流程。
 
 + 这里是所有 Bean 创建完成之后执行，并不像我们常会用到的`@PostConstruct`和`@PreDestroy`两个注解，它们是在 Bean 初始化或销毁时执行一些操作，这些操作属于 Bean 生命周期级别；
 
-+ `Lifecycle`接口解决的是另外一些场景，比如我们想在[容器](https://cloud.tencent.com/product/tke?from_column=20065&from=20065)本身的生命周期（比如容器启动、停止）的事件上做一些工作
++ `Lifecycle`接口解决的是另外一些场景，比如我们想在容器本身的生命周期（比如容器启动、停止）的事件上做一些工作
 
 #### 5.1.2 接口方法
 
@@ -495,7 +495,7 @@ stop(Runnable callback)：停止生命周期组件，并在停止后执行提供
 
 2. 有序启动和关闭：
 
-    `SmartLifecycle` 可以指定组件的启动和关闭顺序，确保在启动或关闭过程中其他组件已经准备好或者已经完成。当你的组件在启动的时候，有依赖关系的话，那么就可以 `SmartLifecycle` 来进行控制组件的启动顺序。
+    `SmartLifecycle` 可以指定组件的启动和关闭顺序，确保在启动或关闭过程中其他组件已经准备好或者已经完成。当你的组件在启动的时候，有依赖关系的话，那么就可以用 `SmartLifecycle` 来进行控制组件的启动顺序。
 
 3. 动态决定启动和关闭： 
 
@@ -541,7 +541,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.Lifecycle;
-import org.springframework.context.`SmartLifecycle `;
+import org.springframework.context.SmartLifecycle;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -625,7 +625,7 @@ public class Person implements BeanNameAware, ApplicationContextAware, Initializ
         System.out.println("[SmartLifecycle]stop方法调用, 执行回调函数");
         stop();
         // 如果你让isRunning返回true，需要执行stop这个方法，那么就不要忘记调用callback.run()。
-        // 否则在程序退出时，Spring的DefaultLifecycleProcessor会认为这个MySmartLifecycle没有stop完成，程序会一直卡着结束不了，等待一定时间（默认超时时间30秒）后才会自动结束。
+        // 否则在程序退出时，Spring的DefaultLifecycleProcessor会认为这个Person没有stop完成，程序会一直卡着结束不了，等待一定时间（默认超时时间30秒）后才会自动结束。
         callback.run();
     }
 
@@ -657,7 +657,7 @@ public class Person implements BeanNameAware, ApplicationContextAware, Initializ
      */
     @Override
     public boolean isAutoStartup() {
-        return false;
+        return true;
     }
 
     /**
@@ -689,7 +689,6 @@ public class AppConfig {
     public Person person() {
         Person person = new Person();
         person.setName("tester");
-        person.start();
         return person;
     }
 

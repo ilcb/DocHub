@@ -10,7 +10,7 @@
 #   docker compose down -v       # 连数据卷一起清空
 #
 # 说明：
-#   - 默认使用官方镜像 onlyoffice/documentserver:7.3.3（JWT 关闭）。
+#   - 默认使用官方镜像 onlyoffice/documentserver:7.3.3（JWT 关闭，仅限内网测试）。
 #   - 如需 WOPI 协议 / 定制 logo，按文档第 3 节重新构建镜像后，
 #     把 .env 中 ONLYOFFICE_IMAGE 改为自定义镜像名即可。
 # ============================================================
@@ -20,7 +20,6 @@ x-onlyoffice: &onlyoffice
   restart: always
   stdin_open: true
   stop_grace_period: 60s
-  privileged: true
   environment:
     DB_TYPE: postgres
     DB_HOST: postgres
@@ -28,6 +27,8 @@ x-onlyoffice: &onlyoffice
     DB_NAME: onlyoffice
     DB_USER: onlyoffice
     DB_PASS: onlyoffice
+    # JWT 关闭意味着任何能访问端口的人都能调用文档服务（SSRF/转码滥用），
+    # 测试环境可接受；对外服务请开启 JWT 并配置密钥
     JWT_ENABLED: "false"
   depends_on:
     - postgres

@@ -35,7 +35,7 @@ services:
       TZ: ${TZ}
     ports:
       - "${NACOS_PORT}:8848"
-      - "9848:9848"
+      - "${NACOS_GRPC_PORT}:9848"
     volumes:
       - ${NACOS_CONF_DIR:-nacos-conf}:/home/nacos/conf
       - ${NACOS_LOGS_DIR:-nacos-logs}:/home/nacos/logs

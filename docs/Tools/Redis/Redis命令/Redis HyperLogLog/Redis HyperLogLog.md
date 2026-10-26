@@ -21,16 +21,16 @@ HyperLogLog 是一种概率性数据结构，用于估算集合的基数（不�
 | `PFCOUNT` | `PFCOUNT key [key ...]`                     | 返回基数估算值         | O(1)       |
 | `PFMERGE` | `PFMERGE destkey sourcekey [sourcekey ...]` | 合并多个 HyperLogLog   | O(N)       |
 
- ### 1.1 示例
+### 1.1 示例
 
 ```bash
-127.0.0.1:6379> pfadd runonbkey 'redis'
+127.0.0.1:6379> pfadd runoobkey 'redis'
 (integer) 1
-127.0.0.1:6379> pfadd runonbkey 'mongodb'
+127.0.0.1:6379> pfadd runoobkey 'mongodb'
 (integer) 1
-127.0.0.1:6379> pfadd runonbkey 'mysql'
+127.0.0.1:6379> pfadd runoobkey 'mysql'
 (integer) 1
-127.0.0.1:6379> pfcount runonbkey
+127.0.0.1:6379> pfcount runoobkey
 (integer) 3
 ```
 
@@ -120,7 +120,7 @@ PFADD user:search:behavior user456
 PFCOUNT user:search:behavior
 ```
 
-### 2.5  IP 地址去重统计
+### 2.5 IP 地址去重统计
 
 ```bash
 # IP 访问统计

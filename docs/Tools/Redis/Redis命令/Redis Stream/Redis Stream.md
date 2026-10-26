@@ -31,7 +31,7 @@ Redis Stream 是 Redis 5.0 引入的新数据结构，专门用于处理流数�
 使用 XADD 命令向流中添加消息：
 
 ```bash
-\# 添加消息（自动生成ID） 
+# 添加消息（自动生成ID） 
 XADD mystream * name "张三" age 25 city "北京" 
 # 指定消息ID 
 XADD mystream 1609459200000-0 name "李四" age 30 city "上海" 
@@ -59,7 +59,7 @@ XREAD STREAMS mystream 0
 XREAD STREAMS mystream 1609459200000-0 
 # 阻塞读取新消息 
 XREAD BLOCK 0 STREAMS mystream 
-$ # 设置阻塞超时时间（毫秒）
+# 设置阻塞超时时间（毫秒）
 XREAD BLOCK 5000 STREAMS mystream $ 
 # 限制读取数量 
 XREAD COUNT 10 STREAMS mystream 0 
@@ -78,7 +78,7 @@ XREAD STREAMS stream1 stream2 0 0
 Redis Stream 支持消费者组模式，实现负载均衡和消息确认：
 
 ```bash
-\# 创建消费者组 
+# 创建消费者组 
 XGROUP CREATE mystream mygroup 0 MKSTREAM 
 # 从最新消息开始创建组 
 XGROUP CREATE mystream mygroup $ 
@@ -104,13 +104,15 @@ XINFO STREAM mystream
 # 获取流长度 
 XLEN mystream 
 # 范围查询 
-XRANGE mystream - + XRANGE mystream 1609459200000 1609459300000
+XRANGE mystream - + 
+XRANGE mystream 1609459200000 1609459300000 
 # 反向范围查询 
 XREVRANGE mystream + - COUNT 10 
 # 删除消息 
 XDEL mystream 1609459200000-0 
 # 修剪流（删除旧消息） 
-XTRIM mystream MAXLEN 1000 XTRIM mystream MAXLEN ~ 1000 
+XTRIM mystream MAXLEN 1000 
+XTRIM mystream MAXLEN ~ 1000 
 ```
 
 ### 1.5 异常处理
@@ -118,7 +120,7 @@ XTRIM mystream MAXLEN 1000 XTRIM mystream MAXLEN ~ 1000
 处理消费过程中的异常情况：
 
 ```bash
-\# 查看待确认消息详情 
+# 查看待确认消息详情 
 XPENDING mystream mygroup - + 10 consumer1 
 # 转移超时消息给其他消费者 
 XCLAIM mystream mygroup consumer2 60000 1609459200000-0 
@@ -143,7 +145,9 @@ Redis Stream 在实际项目中的应用：
 ```bash
 # 用户行为追踪示例 
 # 记录用户行为 
-XADD user_actions * user_id 1001 action "page_view" page "/home" timestamp 1609459200 XADD user_actions * user_id 1001 action "click" element "buy_button" timestamp 1609459210 XADD user_actions * user_id 1001 action "purchase" product_id 2001 amount 99.99 timestamp 1609459220 
+XADD user_actions * user_id 1001 action "page_view" page "/home" timestamp 1609459200 
+XADD user_actions * user_id 1001 action "click" element "buy_button" timestamp 1609459210 
+XADD user_actions * user_id 1001 action "purchase" product_id 2001 amount 99.99 timestamp 1609459220 
 # 创建分析消费者组 
 XGROUP CREATE user_actions analytics_group 0 MKSTREAM 
 # 分析消费者读取数据

@@ -1,0 +1,28 @@
+# ============================================================
+# Kuboard —— docker-compose 部署版本（独立按需启动）
+#
+# 常用命令（在本目录 集群管理工具Kuboard/ 下执行）：
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f kuboard
+#   docker compose down          # 停止并移除容器（命名卷数据保留）
+#   docker compose down -v       # 连数据卷一起清空
+# ============================================================
+
+services:
+  kuboard:
+    image: ${KUBOARD_IMAGE}
+    container_name: ${KUBOARD_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      KUBOARD_ENDPOINT: ${KUBOARD_ENDPOINT}
+      KUBOARD_AGENT_SERVER_TCP_PORT: ${KUBOARD_AGENT_PORT}
+      TZ: ${TZ}
+    ports:
+      - "${KUBOARD_PORT}:80/tcp"
+      - "${KUBOARD_AGENT_PORT}:10081/tcp"
+    volumes:
+      - ${KUBOARD_DATA_DIR:-kuboard-data}:/data/docker/kuboard/data
+
+volumes:
+  kuboard-data:

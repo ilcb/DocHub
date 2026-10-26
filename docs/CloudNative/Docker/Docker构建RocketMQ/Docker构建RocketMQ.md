@@ -43,13 +43,14 @@ mkdir -p /data/runtime/docker/rocketmq/{nameserver,broker}/{logs,store}
 
 ```bash
 # ---------- RocketMQ 环境变量（集中管理） ----------
-ROCKETMQ_IMAGE=apache/rocketmq:5.2.0
-ROCKETMQ_CONSOLE_IMAGE=styletang/rocketmq-console-ng
+ROCKETMQ_IMAGE=apache/rocketmq:5.3.2
+# 官方 Dashboard（旧 styletang/rocketmq-console-ng 已多年未更新，对 5.x 兼容差）
+ROCKETMQ_CONSOLE_IMAGE=apacherocketmq/rocketmq-dashboard:1.0.0
 
 # ===== 容器名 =====
 ROCKETMQ_NAMESRV_CONTAINER_NAME=rmqnamesrv
 ROCKETMQ_BROKER_CONTAINER_NAME=rmqbroker
-ROCKETMQ_CONSOLE_CONTAINER_NAME=rmq-console-ng
+ROCKETMQ_CONSOLE_CONTAINER_NAME=rmq-dashboard
 
 # ===== 宿主机端口（宿主机:容器）=====
 ROCKETMQ_NAMESRV_PORT=9876
@@ -70,8 +71,8 @@ TZ=Asia/Shanghai
 
 | 变量 | 说明 | 示例 |
 |------|------|------|
-| `ROCKETMQ_IMAGE` | 服务端镜像 | `apache/rocketmq:5.2.0` |
-| `ROCKETMQ_CONSOLE_IMAGE` | 控制台镜像 | `styletang/rocketmq-console-ng` |
+| `ROCKETMQ_IMAGE` | 服务端镜像 | `apache/rocketmq:5.3.2` |
+| `ROCKETMQ_CONSOLE_IMAGE` | 控制台镜像 | `apacherocketmq/rocketmq-dashboard:1.0.0` |
 | `ROCKETMQ_NAMESRV_PORT` | NameServer 端口 | `9876` |
 | `ROCKETMQ_BROKER_PORT` | Broker 端口 | `10911` |
 | `ROCKETMQ_BROKER_VIP_PORT` | Broker VIP 端口 | `10909` |
@@ -172,6 +173,6 @@ docker compose down -v     # 连数据卷一起清空
 
 ## 7. 验证
 
-浏览器访问 RocketMQ 控制台: `http://<服务器IP>:9080`
+浏览器访问 RocketMQ 控制台：`http://<服务器IP>:9080`
 
 ![rocketmq-main.png](img/rocketmq-main.png)

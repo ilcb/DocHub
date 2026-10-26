@@ -124,13 +124,13 @@ public interface TransactionDefinition {
 
 ### 事务隔离级别
 并发情况下访问数据库可能会存在以下问题：
-+ 丢失修改（Lost to modify）: 事务 A 读取一个数据时，事务 B 也访问了该数据，事务 A 中修改了这个数据后，第事务 B 也修改了这个数据。事务 A 内的修改结果就被丢失，因此称为丢失修改。
++ 丢失修改（Lost Update）: 事务 A 读取一个数据时，事务 B 也访问了该数据，事务 A 中修改了这个数据后，事务 B 也修改了这个数据。事务 A 内的修改结果就被丢失，因此称为丢失修改。
 + 脏读（Dirty reads）事务 A 读取了事务 B 修改但是还未提交的数据时，后来事务 B 回滚了，事务 A 获取的数据就是"脏数据"。
 + 不可重复读（Nonrepeatable read）：事务 A 多次读取同一数据，在读取间隙，事务 B 修改了该数据，导致事务 A 多次读取到的数据不一致。
 + 幻读（Phantom read）：事务 A 多次读取同一数据，在读取间隙，事务 B 新增了数据，随后的查询中，事务 A 读到的数据对比之前不一致。
 
 TransactionDefinition 接口中定义了五个表示隔离级别的常量：
-+ **TransactionDefinition.ISOLATION_DEFAULT**: 使用后端数据库默认的隔离级别，Mysql 默认采用的 REPEATABLE_READ 隔离级别，Oracle 默认采用的 READ_COMMITTED 隔离级别.
++ **TransactionDefinition.ISOLATION_DEFAULT**: 使用后端数据库默认的隔离级别，MySQL 默认采用的 REPEATABLE_READ 隔离级别，Oracle 默认采用的 READ_COMMITTED 隔离级别.
 + **TransactionDefinition.ISOLATION_READ_UNCOMMITTED**: 最低的隔离级别，允许读取尚未提交的数据变更，可能会导致脏读、幻读或不可重复读
 + **TransactionDefinition.ISOLATION_READ_COMMITTED**: 允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读、不可重复读仍可能发生
 + **TransactionDefinition.ISOLATION_REPEATABLE_READ**: 对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生
@@ -172,7 +172,7 @@ ServiceB {
 必须在一个事务中运行。也就是说，只能被一个父事务调用。否则，就要抛出异常
 
 #### PROPAGATION_REQUIRES_NEW
-启动一个新事务，此事务将被完全 commited 或 rolled back 而不依赖于外部事务，它拥有自己的隔离范围、锁等等。当内部事务开始执行时，外部事务将被挂起，内务事务结束时，外部事务将继续执行。
+启动一个新事务，此事务将被完全 committed 或 rolled back 而不依赖于外部事务，它拥有自己的隔离范围、锁等等。当内部事务开始执行时，外部事务将被挂起，内部事务结束时，外部事务将继续执行。
 比如设定 ServiceA.methodA 的事务级别为 PROPAGATION_REQUIRED，ServiceB.methodB 的事务级别为 PROPAGATION_REQUIRES_NEW，那么当执行到 ServiceB.methodB 的时候，ServiceA.methodA 所在的事务就会挂起，ServiceB.methodB 会起一个新的事务，等待 ServiceB.methodB 的事务完成以后，ServiceA.methodA 才继续执行。他与 PROPAGATION_REQUIRED 的事务区别在于事务的回滚程度了。因为 ServiceB.methodB 是新起一个事务，那么就是存在两个不同的事务。
 1. 如果 ServiceB.methodB 已经提交，那么 ServiceA.methodA 失败回滚，ServiceB.methodB 是不会回滚的。
 2. 如果 ServiceB.methodB 失败回滚，如果他抛出的异常被 ServiceA.methodA 的 try..catch 捕获并处理，ServiceA.methodA 事务仍然可能提交；如果他抛出的异常未被 ServiceA.methodA 捕获处理，ServiceA.methodA 事务将回滚。
@@ -186,7 +186,7 @@ ServiceB {
 不能在事务中运行，假设 ServiceA.methodA 的事务级别是 PROPAGATION_REQUIRED， 而 ServiceB.methodB 的事务级别是 PROPAGATION_NEVER ，那么 ServiceB.methodB 就要抛出异常了
 
 #### PROPAGATION_NESTED
-开始一个 "嵌套的" 事务，它是已经存在事务的一个真正的子事务。嵌套事务开始执行时，它将取得一个 savepoint，如果这个嵌套事务失败，我们将回滚到此 savepoint，潜套事务是外部事务的一部分，只有外部事务结束后它才会被提交. 
+开始一个 "嵌套的" 事务，它是已经存在事务的一个真正的子事务。嵌套事务开始执行时，它将取得一个 savepoint，如果这个嵌套事务失败，我们将回滚到此 savepoint，嵌套事务是外部事务的一部分，只有外部事务结束后它才会被提交. 
 比如我们设计 ServiceA.methodA 的事务级别为 PROPAGATION_REQUIRED，ServiceB.methodB 的事务级别为 PROPAGATION_NESTED，那么当执行到 ServiceB.methodB 的时候，ServiceA.methodA 所在的事务就会挂起，ServiceB.methodB 会起一个新的子事务并设置 savepoint，等待 ServiceB.methodB 的事务完成以后，ServiceA.methodA 才继续执行。因为 ServiceB.methodB 是外部事务的子事务，那么
 1. 如果 ServiceB.methodB 已经提交，那么 ServiceA.methodA 失败回滚，ServiceB.methodB 也将回滚。
 2. 如果 ServiceB.methodB 失败回滚，如果他抛出的异常被 ServiceA.methodA 的 try..catch 捕获并处理，ServiceA.methodA 事务仍然可能提交；如果他抛出的异常未被 ServiceA.methodA 捕获处理，ServiceA.methodA 事务将回滚。
@@ -194,15 +194,15 @@ ServiceB {
 PROPAGATION_REQUIRES_NEW 完全是一个新的事务，它与外部事务相互独立，而 PROPAGATION_NESTED 则是外部事务的子事务，如果外部事务 commit，嵌套事务也会被 commit，这个规则同样适用于 roll back. 
 
 在 spring 中使用 PROPAGATION_NESTED 的前提：
-1. 我们要设置 transactionManager 的 nestedTransactionAllowed 属性为 true, 注意， 此属性默认为 false!!! 
+1. 我们要设置 transactionManager 的 nestedTransactionAllowed 属性为 true, 注意：此属性默认为 false。 
 2. java.sql.Savepoint 必须存在， 即 jdk 版本要 1.4+ 
-3. Connection.getMetaData().supportsSavepoints() 必须为 true, 即 jdbc drive 必须支持 JDBC 3.0 
+3. Connection.getMetaData().supportsSavepoints() 必须为 true, 即 jdbc driver 必须支持 JDBC 3.0 
 
 ### 事务超时属性
 所谓事务超时，就是指一个事务所允许执行的最长时间，如果超过该时间限制但事务还没有完成，则自动回滚事务。在 TransactionDefinition 中以 int 的值来表示超时时间，其单位是秒。
 
 ### 事务只读属性
-事务的只读属性是指，对事务性资源进行只读操作或者是读写操作。所谓事务性资源就是指那些被事务管理的资源，比如数据源、 JMS 资源，以及自定义的事务性资源等等。如果确定只对事务性资源进行只读操作，那么我们可以将事务标志为只读的，以提高事务处理的性能。在 TransactionDefinition 中以 boolean 类型来表示该事务是否只读。
+事务的只读属性是指，对事务性资源进行只读操作或者是读写操作。所谓事务性资源就是指那些被事务管理的资源，比如数据源、 JMS 资源，以及自定义的事务性资源等等。如果确定只对事务性资源进行只读操作，那么我们可以将事务标记为只读的，以提高事务处理的性能。在 TransactionDefinition 中以 boolean 类型来表示该事务是否只读。
 
 ### 回滚规则
 这些规则定义了哪些异常会导致事务回滚而哪些不会。默认情况下，事务只有遇到运行期异常时才会回滚，而在遇到检查型异常时不会回滚。 

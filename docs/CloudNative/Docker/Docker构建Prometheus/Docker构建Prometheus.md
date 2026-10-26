@@ -11,9 +11,9 @@ categories: ["Docker"]
 
 # Docker 构建 Prometheus（docker-compose 部署版本）
 
-# 1. Prometheus 介绍
+## 1. Prometheus 介绍
 
-Prometheus 是一个开源系统监控与告警工具包，它收集指标并将其存储为时间序列数据，即指标信息与记录它的时间戳一起存储，以及称为标签的可选键值对。
+Prometheus 是一个开源系统监控与告警工具包，它收集指标并将其存储为时间序列数据，指标按时间序列存储，支持可选的键值对标签。
 
 | 组件 | 作用 |
 |------|------|
@@ -25,7 +25,7 @@ Prometheus 是一个开源系统监控与告警工具包，它收集指标并将
 
 本文按 docker-compose 方式部署上述监控全家桶，镜像、端口、目录、容器名等可配置项全部集中在 `.env` 中管理，其余配置项放在 `PROMETHEUS_CONF_DIR` 下（默认 `/data/runtime/docker/prometheus/conf`）。
 
-# 2. 宿主目录
+## 2. 宿主目录
 
 | 宿主目录 | 用途 | 容器内用户 |
 |---------|------|-----------|
@@ -37,7 +37,7 @@ Prometheus 是一个开源系统监控与告警工具包，它收集指标并将
 
 > 数据目录：`.env` 中 `*_DIR` 留空则回退使用 Docker 命名卷；**配置目录 `PROMETHEUS_CONF_DIR` 为必填**，需先按第 3 节复制配置。
 
-# 3. 创建宿主目录并设置权限
+## 3. 创建宿主目录并设置权限
 
 bind mount 首次使用需先建目录（prometheus 以 root 运行无需授权，grafana 授权 uid 472）：
 
@@ -51,7 +51,7 @@ mkdir -p /data/runtime/docker/prometheus/{data,rules,grafana/{data,plugins}}
 chown -R 472:472 /data/runtime/docker/prometheus/grafana
 ```
 
-# 4. 编制 .env
+## 4. 编制 .env
 
 在本目录创建 `.env` 文件（内容如下，按需修改）：
 
@@ -59,18 +59,19 @@ chown -R 472:472 /data/runtime/docker/prometheus/grafana
 # ---------- Prometheus 监控全家桶环境变量（集中管理） ----------
 
 # ===== 镜像配置 =====
-PROMETHEUS_IMAGE=prom/prometheus:latest
-NODE_EXPORTER_IMAGE=prom/node-exporter:latest
-ALERTMANAGER_IMAGE=prom/alertmanager:latest
-GRAFANA_IMAGE=grafana/grafana:latest
-CADVISOR_IMAGE=gcr.io/cadvisor/cadvisor:latest
+PROMETHEUS_IMAGE=prom/prometheus:v2.51.0
+NODE_EXPORTER_IMAGE=prom/node-exporter:v1.7.0
+ALERTMANAGER_IMAGE=prom/alertmanager:v0.27.0
+GRAFANA_IMAGE=grafana/grafana:10.4.2
+# gcr.io 国内拉取困难，可配置镜像加速或本地导入；版本与官方发布对齐
+CADVISOR_IMAGE=gcr.io/cadvisor/cadvisor:v0.49.1
 
 # ===== 宿主机端口（宿主机:容器）=====
 PROMETHEUS_PORT=9090
 NODE_EXPORTER_PORT=9100
 ALERTMANAGER_PORT=9093
 GRAFANA_PORT=3000
-CADVISOR_PORT=9200
+CADVISOR_PORT=9210
 
 # ===== Grafana 管理员密码 =====
 GRAFANA_ADMIN_PASSWORD=admin
@@ -84,18 +85,18 @@ PROMETHEUS_CONF_DIR=/data/runtime/docker/prometheus/conf
 TZ=Asia/Shanghai
 ```
 
-# 5. .env 变量说明
+## 5. .env 变量说明
 
 | 变量 | 说明 | 示例 |
 |------|------|------|
-| `PROMETHEUS_IMAGE` 等 | 各组件镜像 | `prom/prometheus:latest` |
-| `PROMETHEUS_PORT` / `NODE_EXPORTER_PORT` / `ALERTMANAGER_PORT` / `GRAFANA_PORT` / `CADVISOR_PORT` | 宿主机端口 | `9090` / `9100` / `9093` / `3000` / `9200` |
+| `PROMETHEUS_IMAGE` 等 | 各组件镜像（均已钉版本，按需升级） | `prom/prometheus:v2.51.0` |
+| `PROMETHEUS_PORT` / `NODE_EXPORTER_PORT` / `ALERTMANAGER_PORT` / `GRAFANA_PORT` / `CADVISOR_PORT` | 宿主机端口 | `9090` / `9100` / `9093` / `3000` / `9210` |
 | `GRAFANA_ADMIN_PASSWORD` | Grafana 管理员密码 | `admin` |
 | `PROMETHEUS_DATA_DIR` / `PROMETHEUS_RULES_DIR` / `GRAFANA_DATA_DIR` / `GRAFANA_PLUGINS_DIR` | 数据目录，留空回退命名卷 | `/data/runtime/docker/prometheus/...` |
 | `PROMETHEUS_CONF_DIR` | 配置目录（必填，先复制 conf/） | `/data/runtime/docker/prometheus/conf` |
 | `TZ` | 时区 | `Asia/Shanghai` |
 
-# 6. docker-compose.yml
+## 6. docker-compose.yml
 
 在本目录创建 `docker-compose.yml`：
 
@@ -174,7 +175,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
 ```
 
-# 7. 配置文件说明
+## 7. 配置文件说明
 
 ## 7.1 `${PROMETHEUS_CONF_DIR}/prometheus.yml`（抓取目标）
 
@@ -217,7 +218,7 @@ groups:
   rules:
   - alert: HostDown
     expr: up{job=~"node-exporter|prometheus|grafana|alertmanager"} == 0
-    for: 0m
+    for: 1m
     labels: { severity: ERROR }
     annotations:
       title: 'Instance down'
@@ -256,7 +257,7 @@ receivers:
       send_resolved: true
 ```
 
-# 8. 启动
+## 8. 启动
 
 ```bash
 cd Docker构建Prometheus
@@ -267,7 +268,7 @@ docker compose down        # 停止并移除容器（命名卷数据保留）
 docker compose down -v     # 连数据卷一起清空
 ```
 
-# 9. 访问入口
+## 9. 访问入口
 
 | 服务 | 地址 | 默认账号 |
 |------|------|----------|
@@ -275,9 +276,9 @@ docker compose down -v     # 连数据卷一起清空
 | Node-Exporter | `http://<服务器IP>:9100/metrics` | - |
 | AlertManager | `http://<服务器IP>:9093` | - |
 | Grafana | `http://<服务器IP>:3000` | `admin` / `.env` 中 `GRAFANA_ADMIN_PASSWORD` |
-| cAdvisor | `http://<服务器IP>:9200` | - |
+| cAdvisor | `http://<服务器IP>:9210` | - |
 
-# 10. 告警扩展（摘要）
+## 10. 告警扩展（摘要）
 
 ## 10.1 钉钉告警
 

@@ -13,7 +13,7 @@ categories: ["Redis"]
 
 ## 2. 基本命令
 
-###  键的基本操作
+### 2.1 键的基本操作
 
 Redis 提供了丰富的键操作命令：
 
@@ -30,9 +30,21 @@ Redis 提供了丰富的键操作命令：
 | `MOVE key db`         | 将当前数据库的 key 移动到给定的数据库 db 当中 | `MOVE song 1`              |
 | `RANDOMKEY`           | 从当前数据库中随机返回一个 key                |                            |
 
-### 2.1 示例
+### 2.2 示例
 
+```bash
+# 检查键是否存在
+EXISTS user:1001
+(integer) 0
 
+# 重命名键
+RENAME user:old user:new
+OK
+
+# 随机返回一个键
+RANDOMKEY
+"greeting"
+```
 
 ## 3. 键的过期时间
 
@@ -47,7 +59,7 @@ Redis 支持为键设置过期时间，这对于缓存和临时数据非常有�
 | `PTTL key`                 | 查看键的剩余生存时间（毫秒） | `PTTL session:abc123`        |
 | `PERSIST key`              | 移除键的过期时间             | `PERSIST session:abc123`     |
 
-#### 3.1 示例
+### 3.1 示例
 
 ```bash
 # 设置会话过期时间为1小时
@@ -91,7 +103,7 @@ KEYS cache:*
 
 # 查找特定模式的键
 KEYS user:100?
-KEYS sessio
+KEYS session:*
 ```
 
 ### 4.2 SCAN 命令
@@ -111,7 +123,7 @@ SCAN 0 MATCH user:*
 SCAN 0 MATCH user:* COUNT 10
 
 # 继续扫描（使用返回的游标）
-SCAN 17 MATCH user
+SCAN 17 MATCH user:*
 ```
 
 ## 5. 键空间统计

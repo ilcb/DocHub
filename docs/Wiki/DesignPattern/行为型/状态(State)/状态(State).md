@@ -3,18 +3,18 @@ title: 状态模式
 description: "状态模式"
 slug: "/backend/design-pattern/action/state"
 hide_table_of_contents: false
-keywords: ["设计模式", "结构型"]
-tags: ["设计模式", "结构型"]
+keywords: ["设计模式", "行为型"]
+tags: ["设计模式", "行为型"]
 date: 2017-08-01
 categories: ["设计模式"]
 ---
 ## 概述
 
-在软件开发过程中，应用程序可能会根据不同的情况作出不同的处理，最直接的解决方案是将这些所有可能发生的情况全都考虑到，然后使用 if...ellse 语句来做状态判断来进行不同情况的处理。但是对复杂状态的判断就显得“力不从心了”，随着增加新的状态或者修改一个状体（if else(或 switch case)语句的增多或者修改）可能会引起很大的修改，而程序的可读性，扩展性也会变得很弱。维护也会很麻烦。那么我就考虑只修改自身状态的模式。
+在软件开发过程中，应用程序可能会根据不同的情况作出不同的处理，最直接的解决方案是将这些所有可能发生的情况全都考虑到，然后使用 if...else 语句来做状态判断来进行不同情况的处理。但是对复杂状态的判断就显得“力不从心了”，随着增加新的状态或者修改一个状态（if else(或 switch case)语句的增多或者修改）可能会引起很大的修改，而程序的可读性，扩展性也会变得很弱。维护也会很麻烦。那么我们可以考虑只修改自身状态的模式。
 
-例子 1：按钮来控制一个电梯的状态，一个电梯开们，关门，停，运行。每一种状态改变，都有可能要根据其他状态来更新处理。例如，开门状体，不能在运行的时候开门，而是在电梯定下后才能开门。
+例子 1：按钮来控制一个电梯的状态，一个电梯开门，关门，停，运行。每一种状态改变，都有可能要根据其他状态来更新处理。例如，开门状态，不能在运行的时候开门，而是在电梯停下后才能开门。
 
-例子 2：我们给一部手机打电话，就可能出现这几种情况：用户开机，用户关机，用户欠费停机，用户消户等。所以当我们拨打这个号码的时候：系统就要判断，该用户是否在开机且不忙状态，又或者是关机，欠费等状态。但不管是那种状态我们都应给出对应的处理操作。
+例子 2：我们给一部手机打电话，就可能出现这几种情况：用户开机，用户关机，用户欠费停机，用户销户等。所以当我们拨打这个号码的时候：系统就要判断，该用户是否在开机且不忙状态，又或者是关机，欠费等状态。但不管是哪种状态我们都应给出对应的处理操作。
 
 对象如何在每一种状态下表现出不同的行为？
 
@@ -115,7 +115,11 @@ public class StateTest {
     }
 }
 
-##结果
+```
+
+## 结果
+
+```text
 当前状态:ConcreteStateB
 当前状态:ConcreteStateA
 当前状态:ConcreteStateB
@@ -147,7 +151,7 @@ public abstract class LiftState {
 /**
  * 在电梯门开启的状态下能做什么事情
  */
-public class OpenningState extends LiftState {
+public class OpeningState extends LiftState {
 
     public void close() {
         this.context.setLiftState(new ClosingState());
@@ -174,7 +178,7 @@ public class ClosingState extends LiftState {
     }
 
     public void open() {
-        this.context.setLiftState(new OpenningState());
+        this.context.setLiftState(new OpeningState());
         this.context.getLiftState().open();
     }
 
@@ -223,7 +227,7 @@ public class StoppingState extends LiftState {
     }
 
     public void open() {
-        this.context.setLiftState(new OpenningState());
+        this.context.setLiftState(new OpeningState());
         this.context.getLiftState().open();
     }
 
@@ -241,7 +245,7 @@ public class StoppingState extends LiftState {
  * 环境类:定义客户感兴趣的接口。维护一个ConcreteState子类的实例，这个实例定义当前状态。
  */
 public class Context {
-    public void Context() {
+    public Context() {
     }
 
     //定一个当前电梯状态
@@ -286,13 +290,15 @@ public class StateTest {
         context.stop();
     }
 }
+```
 
 ## 结果
+
+```text
 lift open
 lift close
 lift run
 lift stop
-
 ```
 
 ## 总结
@@ -315,15 +321,13 @@ lift stop
 
 ### 职责链模式
 
-职责链模式和状态模式都可以解决 If 分支语句过多，
-
-从定义来看，状态模式是一个对象的内在状态发生改变（一个对象，相对比较稳定，处理完一个对象下一个对象的处理一般都已确定），而职责链模式是多个对象之间的改变（多个对象之间的话，就会出现某个对象不存在的现在，就像我们举例的公司请假流程，经理可能不在公司情况），这也说明他们两个模式处理的情况不同。
+职责链模式和状态模式都可以解决 If 分支语句过多的问题。从定义来看，状态模式是一个对象的内在状态发生改变（一个对象，相对比较稳定，处理完一个对象下一个对象的处理一般都已确定），而职责链模式是多个对象之间的改变（多个对象之间的话，就会出现某个对象不存在的现象，就像我们举例的公司请假流程，经理可能不在公司情况），这也说明他们两个模式处理的情况不同。
 
 这两个设计模式最大的区别就是状态模式是让各个状态对象自己知道其下一个处理的对象是谁。而职责链模式中的各个对象并不指定其下一个处理的对象到底是谁，只有在客户端才设定。
 
-用通俗的编程语言来说，就是状态模式：相当于 If else if else；职责链模式相当于 Swich case
+用通俗的编程语言来说，就是状态模式：相当于 If else if else；职责链模式相当于 Switch case
 
-### 策略模式：（状态模式是策略模式的孪生兄弟）
+### 策略模式
 
 状态模式和策略模式的实现方法非常类似，都是利用多态把一些操作分配到一组相关的简单的类中，因此很多人认为这两种模式实际上是相同的。
 
